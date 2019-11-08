@@ -36,3 +36,23 @@ def _get_db_cursor(backend, uuid):
             connection.close()
         except:
             pass
+
+
+@contextmanager
+def _get_mongo_connection(backend, uuid):
+    """Return a Mongo connection."""
+    try:
+        logger.info('{} - Connecting to DB'.format(uuid))
+        connection = backend._connect()
+    except:
+        logger.exception('{} - Cannot connect to DB'.format(uuid))
+        raise
+
+    try:
+        yield connection
+    finally:
+        try:
+            logger.info('{} - Closed connection to DB'.format(uuid))
+            connection.close()
+        except:
+            pass

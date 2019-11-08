@@ -23,6 +23,9 @@ setup(
     extras_require={
         'mysql': [
             'mysqlclient'
+        ],
+        'mongo': [
+            'pymongo'
         ]
     },
     classifiers=[

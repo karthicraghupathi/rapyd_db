@@ -12,7 +12,15 @@ logger = logging.getLogger(__name__)
 
 
 class MySQL(AbstractBackend):
-    def __init__(self, host=None, user=None, passwd=None, db=None, cursorclass=DictCursor, **kwargs):
+    def __init__(
+        self,
+        host=None,
+        user=None,
+        passwd=None,
+        db=None,
+        cursorclass=DictCursor,
+        **kwargs
+    ):
         self._connection_params = dict()
         _assign_if_not_none(self._connection_params, 'host', host)
         _assign_if_not_none(self._connection_params, 'user', user)
@@ -28,20 +36,22 @@ class MySQL(AbstractBackend):
         uuid = _get_uuid()
         with _get_db_cursor(self, uuid) as (connection, cursor):
             execution_start = datetime.now()
-            logger.info('{} - Starting executing query at {}'.format(uuid, execution_start))
+            logger.info(
+                '{} - Starting executing query at {}'.format(uuid, execution_start)
+            )
 
             if params is not None:
                 rows_affected = cursor.execute(query, params)
             else:
                 rows_affected = cursor.execute(query)
-            execution_end = datetime.now()
 
+            execution_end = datetime.now()
             logger.info('{} - {}'.format(uuid, cursor._last_executed.decode('utf8')))
-            logger.info('{} - {} row(s) affected in {} second(s)'.format(
-                uuid,
-                rows_affected,
-                (execution_end - execution_start).seconds
-            ))
+            logger.info(
+                '{} - {} row(s) affected in {} second(s)'.format(
+                    uuid, rows_affected, (execution_end - execution_start).seconds
+                )
+            )
             logger.info('{} - Ended query execution at {}'.format(uuid, execution_end))
 
             for row in cursor:
