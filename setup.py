@@ -26,6 +26,10 @@ setup(
         ],
         'mongo': [
             'pymongo'
+        ],
+        'mssql': [
+            'Cython',
+            'pymssql'
         ]
     },
     classifiers=[
