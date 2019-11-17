@@ -69,3 +69,39 @@ TODO
 
 - Add support for other DB backends.
 - Add tests.
+
+
+# Testing
+
+For these tests to run successfully, the test rig should have access to a DB backend.
+
+## Configuration
+
+Here are some environment variables that can be set for the various backends.
+
+### MySQL Backend
+
+- MYSQL_HOST
+- MYSQL_PORT
+- MYSQL_USERNAME
+- MYSQL_PASSWORD
+
+## Running Tests
+
+A very easy way to set these environment variables would be to add them to a shell script file and source them like so:
+
+```
+source ./test_setup.sh
+```
+
+To run all tests, run the following command:
+
+```
+python -m unittest dicover -v
+```
+
+To run tests for a specific backend, issue the following command:
+
+```
+python -m unittest sqlbootstrap.tests.test_mysql
+```
