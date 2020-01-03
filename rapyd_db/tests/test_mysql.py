@@ -4,9 +4,9 @@ import logging
 import os
 import unittest
 
-from sql_bootstrap.utils import _get_uuid
-from sql_bootstrap.backends import get_connection
-from sql_bootstrap.backends.mysql import MySQL
+from rapyd_db.utils import _get_uuid
+from rapyd_db.backends import get_connection
+from rapyd_db.backends.mysql import MySQL
 
 
 logging.basicConfig(level='WARNING')

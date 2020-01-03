@@ -1,4 +1,4 @@
-SQL Bootstrap
+Rapyd DB
 =============
 
 An opinionated lightweight wrapper around various SQL backend drivers.
@@ -6,6 +6,8 @@ An opinionated lightweight wrapper around various SQL backend drivers.
 Support right now is available for the following:
 
 - MySQL / MariaDB via ``mysqlclient``
+- Microsoft SQL Server via ``pymssql``
+- mongoDB via ``pymongo``
 
 Features
 --------
@@ -19,7 +21,7 @@ Installation
 
 .. code-block::
 
-    pip install sql_bootstrap
+    pip install rapyd_db
 
 Make sure you are also installing the appropriate drivers for your respective backend as mentioned above.
 
@@ -27,7 +29,7 @@ Or you can install with driver like this:
 
 .. code-block::
 
-    pip install sql_bootstrap[mysql]
+    pip install rapyd_db[mysql]
 
 Usage
 -----
@@ -35,7 +37,7 @@ Usage
 .. code-block::
 
     # import this
-    from sql_bootstrap.backends.mysql import MySQL
+    from rapyd_db.backends.mysql import MySQL
 
     # create the DB object; no connection is done at this point
     # any argument accepted by the underlying DB driver can be passed
@@ -57,51 +59,54 @@ Usage
 
 This is an excerpt of the log messages using ``basicConfig``. This will change depending on your logging configuration::
 
-    INFO:sql_bootstrap.backends:f2e47d87874d4055beba66b6c8221aff - Connecting to DB
-    INFO:sql_bootstrap.backends.mysql:f2e47d87874d4055beba66b6c8221aff - Starting executing query at 2019-10-28 15:47:31.182261
-    INFO:sql_bootstrap.backends.mysql:f2e47d87874d4055beba66b6c8221aff - SELECT * FROM blah
-    INFO:sql_bootstrap.backends.mysql:f2e47d87874d4055beba66b6c8221aff - 2844047 row(s) affected in 10 second(s)
-    INFO:sql_bootstrap.backends.mysql:f2e47d87874d4055beba66b6c8221aff - Ended query execution at 2019-10-28 15:47:41.747841
-    INFO:sql_bootstrap.backends:f2e47d87874d4055beba66b6c8221aff - Closed connection to DB
+    INFO:rapyd_db.backends:f2e47d87874d4055beba66b6c8221aff - Connecting to DB
+    INFO:rapyd_db.backends.mysql:f2e47d87874d4055beba66b6c8221aff - Starting executing query at 2019-10-28 15:47:31.182261
+    INFO:rapyd_db.backends.mysql:f2e47d87874d4055beba66b6c8221aff - SELECT * FROM blah
+    INFO:rapyd_db.backends.mysql:f2e47d87874d4055beba66b6c8221aff - 2844047 row(s) affected in 10 second(s)
+    INFO:rapyd_db.backends.mysql:f2e47d87874d4055beba66b6c8221aff - Ended query execution at 2019-10-28 15:47:41.747841
+    INFO:rapyd_db.backends:f2e47d87874d4055beba66b6c8221aff - Closed connection to DB
 
 TODO
 ----
 
-- Add support for other DB backends.
-- Add tests.
+- Add robust tests for all backends.
 
 
-# Testing
+Testing
+-------
 
 For these tests to run successfully, the test rig should have access to a DB backend.
 
-## Configuration
+Configuration
+~~~~~~~~~~~~~
 
 Here are some environment variables that can be set for the various backends.
 
-### MySQL Backend
+MySQL Backend
+*************
 
 - MYSQL_HOST
 - MYSQL_PORT
 - MYSQL_USERNAME
 - MYSQL_PASSWORD
 
-## Running Tests
+Running Tests
+~~~~~~~~~~~~~
 
 A very easy way to set these environment variables would be to add them to a shell script file and source them like so:
 
-```
-source ./test_setup.sh
-```
+.. code-block::
+
+    source ./test_setup.sh
 
 To run all tests, run the following command:
 
-```
-python -m unittest dicover -v
-```
+.. code-block::
+
+    python -m unittest dicover -v
 
 To run tests for a specific backend, issue the following command:
 
-```
-python -m unittest sqlbootstrap.tests.test_mysql
-```
+.. code-block::
+
+    python -m unittest sqlbootstrap.tests.test_mysql

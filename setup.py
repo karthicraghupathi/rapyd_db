@@ -11,13 +11,13 @@ with open('LICENSE') as f:
     license = f.read()
 
 setup(
-    name='sql_bootstrap',
-    version='0.0.2',
+    name='rapyd_db',
+    version='0.0.1',
     description='An opinionated lightweight wrapper around various SQL backend drivers.',
     long_description=readme,
     author='Karthic Raghupathi',
     author_email='karthicr@gmail.com',
-    url='https://github.com/karthicraghupathi/sql_bootstrap',
+    url='https://github.com/karthicraghupathi/rapyd_db',
     license=license,
     packages=find_packages(exclude=('tests', 'docs')),
     extras_require={
