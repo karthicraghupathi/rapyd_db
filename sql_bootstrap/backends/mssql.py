@@ -3,7 +3,7 @@ import pymssql
 
 from datetime import datetime
 
-from . import AbstractBackend, _get_connection
+from . import AbstractBackend, get_connection
 from ..utils import _assign_if_not_none, _get_uuid
 
 
@@ -73,7 +73,7 @@ class MSSQL(AbstractBackend):
             return self._no_stream(uuid, query, params)
 
     def _stream(self, uuid, query, params):
-        with _get_connection(self, uuid) as connection:
+        with get_connection(self, uuid) as connection:
             connection.autocommit(True)
             cursor = connection.cursor()
             execution_start = datetime.now()
@@ -103,7 +103,7 @@ class MSSQL(AbstractBackend):
             logger.info('{} - Ended query execution at {}'.format(uuid, execution_end))
 
     def _no_stream(self, uuid, query, params):
-        with _get_connection(self, uuid) as connection:
+        with get_connection(self, uuid) as connection:
             connection.autocommit(True)
             cursor = connection.cursor()
             execution_start = datetime.now()

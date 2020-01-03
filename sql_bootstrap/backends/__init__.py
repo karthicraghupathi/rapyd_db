@@ -19,7 +19,7 @@ class AbstractBackend(ABC):
 
 
 @contextmanager
-def _get_connection(backend, uuid):
+def get_connection(backend, uuid):
     """Returns a DB connection."""
     try:
         logger.info('{} - Connecting to DB'.format(uuid))

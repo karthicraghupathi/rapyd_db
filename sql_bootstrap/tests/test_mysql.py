@@ -4,6 +4,8 @@ import logging
 import os
 import unittest
 
+from sql_bootstrap.utils import _get_uuid
+from sql_bootstrap.backends import get_connection
 from sql_bootstrap.backends.mysql import MySQL
 
 
@@ -29,25 +31,19 @@ class TestMySQLBackend(unittest.TestCase):
             host=self._host, user=self._user, password=self._password, port=self._port,
         )
 
-    def tearDown(self):
-        # self._db.execute(
-        #     'DROP DATABASE IF EXISTS `{}`'.format(self._test_db), stream=False
-        # )
-        pass
-
-    def test_01_mysql_db_connection(self):
+    def test_00_mysql_db_connection(self):
         rows_affected, last_row_id, rows = self._db.execute(
             'SELECT version()', stream=False
         )
         self.assertIn('version()', rows[0])
 
-    def test_02_mysql_create_test_db(self):
+    def test_01_mysql_create_test_db(self):
         rows_affected, last_row_id, rows = self._db.execute(
             'CREATE DATABASE IF NOT EXISTS `{}`'.format(self._test_db), stream=False
         )
         self.assertEqual(rows_affected, 1)
 
-    def test_03_mysql_create_salaries_table(self):
+    def test_02_mysql_create_salaries_table(self):
         query = (
             'CREATE TABLE IF NOT EXISTS `{}`.`salaries` ('
             ' `emp_no` int(11) NOT NULL,'
@@ -56,9 +52,9 @@ class TestMySQLBackend(unittest.TestCase):
             ' `to_date` date NOT NULL,'
             ' PRIMARY KEY (`emp_no`,`from_date`))'.format(self._test_db)
         )
-        rows_affected, last_row_id, rows = self._db.execute(query, stream=False)
+        self._db.execute(query, stream=False)
 
-    def test_04_mysql_insert_salaries(self):
+    def test_03_mysql_insert_salaries(self):
         data = []
         base_dir = os.path.dirname(os.path.abspath(__file__))
         with open(os.path.join(base_dir, 'test_data_salaries.csv')) as data_file:
@@ -66,7 +62,29 @@ class TestMySQLBackend(unittest.TestCase):
             for row in reader:
                 data.append(row)
         self.assertEqual(1000, len(data))
-        # TODO insert into DB; explore using executemany
+        query = (
+            'INSERT INTO `{}`.`salaries` (`emp_no`, `salary`, `from_date`, `to_date`)'
+            ' VALUES (%s, %s, %s, %s)'.format(self._test_db)
+        )
+        with get_connection(self._db, _get_uuid()) as connection:
+            connection.autocommit(False)
+            cursor = connection.cursor()
+            cursor.executemany(query, data)
+            connection.commit()
+
+    def test_04_mysql_stream_salaries(self):
+        query = 'SELECT * FROM {}.`salaries`'.format(self._test_db)
+        rows = self._db.execute(query)
+        count = 0
+        for row in rows:
+            count += 1
+        self.assertEqual(1000, count)
+
+    def test_99_mysql_delete_test_db(self):
+        rows_affected, last_row_id, rows = self._db.execute(
+            'DROP DATABASE IF EXISTS `{}`'.format(self._test_db), stream=False
+        )
+        self.assertEqual(rows_affected, 1)
 
 
 if __name__ == '__main__':

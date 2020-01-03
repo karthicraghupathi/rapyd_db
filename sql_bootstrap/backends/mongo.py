@@ -3,7 +3,7 @@ import logging
 from datetime import datetime
 from pymongo import MongoClient
 
-from . import AbstractBackend, _get_connection
+from . import AbstractBackend, get_connection
 from ..utils import _assign_if_not_none, _get_uuid
 
 
@@ -83,7 +83,7 @@ class Mongo(AbstractBackend):
             return self._no_stream(uuid, collection, operation, *args, **kwargs)
 
     def _stream(self, uuid, collection, operation, *args, **kwargs):
-        with _get_connection(self, uuid) as connection:
+        with get_connection(self, uuid) as connection:
             execution_start = datetime.now()
             logger.info('{} - Using collection {}'.format(uuid, collection))
             logger.info('{} - args: {}'.format(uuid, args))
@@ -113,7 +113,7 @@ class Mongo(AbstractBackend):
             )
 
     def _no_stream(self, uuid, collection, operation, *args, **kwargs):
-        with _get_connection(self, uuid) as connection:
+        with get_connection(self, uuid) as connection:
             execution_start = datetime.now()
             logger.info('{} - Using collection {}'.format(uuid, collection))
             logger.info('{} - args: {}'.format(uuid, args))
