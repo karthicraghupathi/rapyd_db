@@ -53,7 +53,7 @@ class Mongo(AbstractBackend):
         else:
             return MongoClient(**self._connection_params)
 
-    def execute(self, collection, operation, *args, stream=True, **kwargs):
+    def execute(self, collection, operation, *args, **kwargs):
         """
         Executes the query and returns the result.
 
@@ -72,6 +72,10 @@ class Mongo(AbstractBackend):
             the result of the method you are calling via operation.
         """
         uuid = _get_uuid()
+        # in python 2 default arguments cannot be used with args and kwargs
+        # https://stackoverflow.com/a/15302038/399435
+        # so doing it this way
+        stream = kwargs.pop('stream', True)
         # the return has to be done this way to accommodate having
         # `yield` and `return` in the same method
         # https://stackoverflow.com/a/43459115/399435

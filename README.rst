@@ -97,16 +97,24 @@ A very easy way to set these environment variables would be to add them to a she
 
 .. code-block::
 
-    source ./test_setup.sh
+    source ./test_environment.sh
 
 To run all tests, run the following command:
 
 .. code-block::
 
-    python -m unittest dicover -v
+    python -m unittest discover -v
+
+    or
+
+    make testall
 
 To run tests for a specific backend, issue the following command:
 
 .. code-block::
 
-    python -m unittest sqlbootstrap.tests.test_mysql
+    python -m unittest -v rapyd_db.tests.test_mysql
+
+    or
+
+    make testmysql

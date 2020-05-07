@@ -12,7 +12,7 @@ with open('LICENSE') as f:
 
 setup(
     name='rapyd_db',
-    version='0.0.2',
+    version='0.0.3',
     description='An opinionated lightweight wrapper around various SQL backend drivers.',
     long_description=readme,
     author='Karthic Raghupathi',
@@ -37,6 +37,7 @@ setup(
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 3'
     ]
 )

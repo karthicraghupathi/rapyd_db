@@ -1,16 +1,19 @@
+import abc
 import logging
 
-from abc import ABC, abstractmethod
+import six
+
 from contextlib import contextmanager
 
 
 logger = logging.getLogger(__name__)
 
 
-class AbstractBackend(ABC):
+@six.add_metaclass(abc.ABCMeta)
+class AbstractBackend():
     _connection_params = None
 
-    @abstractmethod
+    @abc.abstractmethod
     def _connect(self):
         """Connects to the backend and returns a connection."""
 
