@@ -36,6 +36,7 @@ class Mongo(AbstractBackend):
             All other parameters supported by the MongoClient `__init__()` method.
             Refer https://api.mongodb.com/python/current/api/pymongo/mongo_client.html for additional examples.
             Note: `maxPoolSize` is set to 1 only and cannot be changed.
+            Note: `connect` is also set to False because a connection should only occur while querying
         """
         self._database = database
         self._connection_params = dict()
@@ -45,6 +46,7 @@ class Mongo(AbstractBackend):
         _assign_if_not_none(self._connection_params, 'authSource', auth_source)
         _assign_if_not_none(self._connection_params, 'connectTimeoutMS', connect_timeout_ms)
         self._connection_params.update(kwargs)
+        self._connection_params['connect'] = False
         self._connection_params['maxPoolSize'] = 1
 
     def _connect(self):
