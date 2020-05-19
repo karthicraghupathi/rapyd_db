@@ -12,8 +12,8 @@ with open('LICENSE') as f:
 
 setup(
     name='rapyd_db',
-    version='0.0.4',
-    description='An opinionated lightweight wrapper around various SQL backend drivers.',
+    version='0.0.5',
+    description='An opinionated lightweight wrapper around various DB backend drivers.',
     long_description=readme,
     author='Karthic Raghupathi',
     author_email='karthicr@gmail.com',

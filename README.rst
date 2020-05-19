@@ -45,13 +45,13 @@ Usage
 
     # run queries like so
 
-    # select large data
+    # select large data with stream=True (default); returns a generator
     rows = db.execute("SELECT * FROM blah")
     for row in rows:
         print(row)
 
-    # insert data
-    db.execute(
+    # insert data with stream=False; returns rows_affected, lastrowid and results of the query
+    rows_affected, last_inserted_id, results = db.execute(
         'INSERT INTO blah(key) VALUE (%s)',
         ('value1', )
     )
