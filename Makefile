@@ -10,4 +10,10 @@ testall:
 testmysql:
 	python -m unittest -v rapyd_db.tests.test_mysql
 
-.PHONY: build register upload testall testmysql
+testmongo:
+	python -m unittest -v rapyd_db.tests.test_mongo
+
+testmssql:
+	python -m unittest -v rapyd_db.tests.test_mssql
+
+.PHONY: build register upload testall testmysql testmongo testmssql

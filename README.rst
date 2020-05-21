@@ -34,6 +34,9 @@ Or you can install with driver like this:
 Usage
 -----
 
+MySQL Backend
+*************
+
 .. code-block::
 
     # import this
@@ -41,16 +44,17 @@ Usage
 
     # create the DB object; no connection is done at this point
     # any argument accepted by the underlying DB driver can be passed
-    db = MySQL(host='', user='', passwd='', db='')
+    # `cursorclass` will be overwritten
+    db = MySQL(host='', user='', passwd='')
 
     # run queries like so
 
-    # select large data with stream=True (default); returns a generator
-    rows = db.execute("SELECT * FROM blah")
+    # select large data with stream=True; returns a generator
+    rows = db.execute("SELECT * FROM blah", stream=True)
     for row in rows:
         print(row)
 
-    # insert data with stream=False; returns rows_affected, lastrowid and results of the query
+    # insert data with stream=False (default); returns rows_affected, lastrowid and results of the query
     rows_affected, last_inserted_id, results = db.execute(
         'INSERT INTO blah(key) VALUE (%s)',
         ('value1', )
@@ -66,32 +70,23 @@ This is an excerpt of the log messages using ``basicConfig``. This will change d
     INFO:rapyd_db.backends.mysql:f2e47d87874d4055beba66b6c8221aff - Ended query execution at 2019-10-28 15:47:41.747841
     INFO:rapyd_db.backends:f2e47d87874d4055beba66b6c8221aff - Closed connection to DB
 
+MSSQL Backend
+*************
+
 TODO
-----
 
-- Add robust tests for all backends.
+Mongo Backend
+*************
 
+TODO
 
 Testing
 -------
 
 For these tests to run successfully, the test rig should have access to a DB backend.
 
-Configuration
-~~~~~~~~~~~~~
-
-Here are some environment variables that can be set for the various backends.
-
-MySQL Backend
-*************
-
-- MYSQL_HOST
-- MYSQL_PORT
-- MYSQL_USERNAME
-- MYSQL_PASSWORD
-
 Running Tests
-~~~~~~~~~~~~~
+*************
 
 A very easy way to set these environment variables would be to add them to a shell script file and source them like so:
 

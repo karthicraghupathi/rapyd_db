@@ -4,21 +4,15 @@ import pymssql
 from datetime import datetime
 
 from . import AbstractBackend, get_connection
+from ..loggingadapter import LogIdAdapter
 from ..utils import _assign_if_not_none, _get_uuid
 
 
-logger = logging.getLogger(__name__)
+_logger = logging.getLogger(__name__)
 
 
 class MSSQL(AbstractBackend):
-    def __init__(
-        self,
-        host=None,
-        user=None,
-        password=None,
-        database=None,
-        **kwargs
-    ):
+    def __init__(self, host=None, user=None, password=None, **kwargs):
         """
         Initializes an instance of the MSSQL backend with the connection parameters.
 
@@ -34,19 +28,18 @@ class MSSQL(AbstractBackend):
             Note: `as_dict` is limited to return dictionaries only and cannot be changed.
         """
         self._connection_params = dict()
-        _assign_if_not_none(self._connection_params, 'host', host)
-        _assign_if_not_none(self._connection_params, 'user', user)
-        _assign_if_not_none(self._connection_params, 'password', password)
-        _assign_if_not_none(self._connection_params, 'database', database)
+        _assign_if_not_none(self._connection_params, "host", host)
+        _assign_if_not_none(self._connection_params, "user", user)
+        _assign_if_not_none(self._connection_params, "password", password)
         self._connection_params.update(kwargs)
         # we will force as_dict to True
-        self._connection_params['as_dict'] = True
+        self._connection_params["as_dict"] = True
 
     def _connect(self):
         pymssql.set_max_connections(1)
         return pymssql.connect(**self._connection_params)
 
-    def execute(self, query, params=None, stream=True):
+    def execute(self, query, params=None, stream=False):
         """
         Executes the query and returns the result.
 
@@ -61,72 +54,88 @@ class MSSQL(AbstractBackend):
             tuple of the rows affected and a list of all rows returned after
             query execution.
         """
-        uuid = _get_uuid()
         # the return has to be done this way to accommodate having
         # `yield` and `return` in the same method
         # https://stackoverflow.com/a/43459115/399435
         # unfortunately there is a lot of code duplication here
         if stream:
             # when streaming, we want to keep results on the server side to reduce client side memory footprint
-            return self._stream(uuid, query, params)
+            return self._stream(query, params)
         else:
-            return self._no_stream(uuid, query, params)
+            return self._no_stream(query, params)
 
-    def _stream(self, uuid, query, params):
-        with get_connection(self, uuid) as connection:
+    def _stream(self, query, params):
+        # setup logging
+        log_id = _get_uuid()
+        adapter = LogIdAdapter(_logger, dict(log_id=log_id))
+
+        with get_connection(self, log_id) as connection:
             connection.autocommit(True)
             cursor = connection.cursor()
             execution_start = datetime.now()
-            logger.info(
-                '{} - Starting executing query at {}'.format(uuid, execution_start)
-            )
-            logger.info('{} - Streaming results from DB.'.format(uuid))
+            adapter.info("Starting executing query at {}".format(execution_start))
+            adapter.info("Streaming results from DB.")
 
             if params is not None:
                 cursor.execute(query, params)
             else:
                 cursor.execute(query)
 
-            logger.info('{} - Query: {}'.format(uuid, query))
-            logger.info('{} - Params: {}'.format(uuid, params))
+            adapter.info("Query: {}".format(query))
+            adapter.info("Params: {}".format(params))
 
             # returns the generator object
             for row in cursor:
                 yield row
 
             execution_end = datetime.now()
-            logger.info(
-                '{} - Executed in {} second(s)'.format(
-                    uuid, (execution_end - execution_start).seconds
+            adapter.info(
+                "Executed in {} second(s)".format(
+                    (execution_end - execution_start).seconds
                 )
             )
-            logger.info('{} - Ended query execution at {}'.format(uuid, execution_end))
+            adapter.info("Ended query execution at {}".format(execution_end))
 
-    def _no_stream(self, uuid, query, params):
-        with get_connection(self, uuid) as connection:
+    def _no_stream(self, query, params):
+        # setup logging
+        log_id = _get_uuid()
+        adapter = LogIdAdapter(_logger, dict(log_id=log_id))
+
+        with get_connection(self, log_id) as connection:
             connection.autocommit(True)
             cursor = connection.cursor()
             execution_start = datetime.now()
-            logger.info(
-                '{} - Starting executing query at {}'.format(uuid, execution_start)
-            )
-            logger.info('{} - Not streaming results from DB.'.format(uuid))
-            logger.info('{} - Query: {}'.format(uuid, query))
-            logger.info('{} - Params: {}'.format(uuid, params))
+            adapter.info("Starting executing query at {}".format(execution_start))
+            adapter.info("Not streaming results from DB.")
+            adapter.info("Query: {}".format(query))
+            adapter.info("Params: {}".format(params))
 
             if params is not None:
                 cursor.execute(query, params)
             else:
                 cursor.execute(query)
-            result = cursor.fetchall()
+
+            # This driver seems to be having issues fetching results from MS SQL Server
+            # Not sure where the issue lies but for now I'm going to handle this
+            # I'll need to see if this can be done in a better fashion
+            try:
+                result = cursor.fetchall()
+            except pymssql.OperationalError as e:
+                expected_msg = (
+                    "Statement not executed or executed statement has no resultset"
+                )
+                if expected_msg == e.message:
+                    result = []
+                else:
+                    raise e
 
             execution_end = datetime.now()
-            logger.info(
-                '{} - {} row(s) affected in {} second(s)'.format(
-                    uuid, cursor.rowcount, (execution_end - execution_start).seconds
+            adapter.info(
+                "{} row(s) affected in {} second(s)".format(
+                    cursor.rowcount, (execution_end - execution_start).seconds
                 )
             )
-            logger.info('{} - Ended query execution at {}'.format(uuid, execution_end))
+            adapter.info("Ended query execution at {}".format(execution_end))
 
             # returns rows affected and all results
             return cursor.rowcount, cursor.lastrowid, result
