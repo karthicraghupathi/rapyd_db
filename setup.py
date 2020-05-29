@@ -12,7 +12,7 @@ with open("LICENSE") as f:
 
 setup(
     name="rapyd_db",
-    version="0.0.6",
+    version="0.0.7",
     description="An opinionated lightweight wrapper around various DB backend drivers.",
     long_description=readme,
     author="Karthic Raghupathi",
@@ -20,10 +20,11 @@ setup(
     url="https://github.com/karthicraghupathi/rapyd_db",
     license=license,
     packages=find_packages(exclude=("tests", "docs")),
+    install_requires=["Cython", "six",],
     extras_require={
         "mysql": ["mysqlclient"],
         "mongo": ["pymongo"],
-        "mssql": ["Cython", "pymssql"],
+        "mssql": ["pymssql"],
     },
     classifiers=[
         "Intended Audience :: Developers",
