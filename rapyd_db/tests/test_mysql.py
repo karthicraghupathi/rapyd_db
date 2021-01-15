@@ -9,7 +9,7 @@ from rapyd_db.backends import get_connection
 from rapyd_db.backends.mysql import MySQL
 
 
-logging.basicConfig(level="WARNING")
+logging.basicConfig(level=os.environ.get("RAPYD_DB_LOGLEVEL") or "WARNING")
 
 
 class TestMySQLBackend(unittest.TestCase):
@@ -22,7 +22,7 @@ class TestMySQLBackend(unittest.TestCase):
         self._test_db = os.environ.get("MYSQL_TEST_DB") or "test_db"
 
         self._db = MySQL(
-            host=self._host, user=self._user, password=self._password, port=self._port,
+            host=self._host, user=self._user, password=self._password, port=self._port
         )
 
     def test_00_mysql_db_connection(self):
@@ -54,7 +54,7 @@ class TestMySQLBackend(unittest.TestCase):
         with open(os.path.join(base_dir, "test_data_salaries.csv")) as data_file:
             reader = csv.DictReader(data_file)
             for row in reader:
-                data.append(row.values())
+                data.append(tuple(row.values()))
         self.assertEqual(1000, len(data))
         query = (
             "INSERT INTO `{}`.`salaries` (`emp_no`, `salary`, `from_date`, `to_date`)"

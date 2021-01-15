@@ -7,7 +7,7 @@ import unittest
 from rapyd_db.backends.mongo import Mongo
 
 
-logging.basicConfig(level="WARNING")
+logging.basicConfig(level=os.environ.get("RAPYD_DB_LOGLEVEL") or "WARNING")
 
 
 class TestMongoBackend(unittest.TestCase):

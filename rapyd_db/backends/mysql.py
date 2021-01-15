@@ -80,7 +80,7 @@ class MySQL(AbstractBackend):
             else:
                 cursor.execute(query)
 
-            adapter.info("{}".format(cursor._last_executed.decode("utf8")))
+            adapter.info("{}".format(cursor._executed.decode("utf8")))
 
             # returns the generator object
             for row in cursor:
@@ -112,7 +112,7 @@ class MySQL(AbstractBackend):
                 rows_affected = cursor.execute(query)
 
             execution_end = datetime.now()
-            adapter.info("{}".format(cursor._last_executed.decode("utf8")))
+            adapter.info("{}".format(cursor._executed.decode("utf8")))
             adapter.info(
                 "{} row(s) affected in {} second(s)".format(
                     rows_affected, (execution_end - execution_start).seconds

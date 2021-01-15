@@ -1,5 +1,5 @@
 Rapyd DB
-=============
+========
 
 An opinionated lightweight wrapper around various SQL backend drivers.
 

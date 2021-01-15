@@ -9,7 +9,7 @@ from rapyd_db.utils import _get_uuid
 from rapyd_db.backends import get_connection
 from rapyd_db.backends.mssql import MSSQL
 
-logging.basicConfig(level="WARNING")
+logging.basicConfig(level=os.environ.get("RAPYD_DB_LOGLEVEL") or "WARNING")
 
 
 class TestMSSQLBackend(unittest.TestCase):
@@ -22,7 +22,7 @@ class TestMSSQLBackend(unittest.TestCase):
         self._test_db = os.environ.get("MSSQL_TEST_DB") or "test_db"
 
         self._db = MSSQL(
-            host=self._host, user=self._user, password=self._password, port=self._port,
+            host=self._host, user=self._user, password=self._password, port=self._port
         )
 
     def test_00_mssql_db_connection(self):

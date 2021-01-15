@@ -5,6 +5,10 @@
 # $ source ./test_environment.sh
 # do NOT commit an updated file containing credentials to git
 
+# set log level
+
+export RAPYD_DB_LOGLEVEL=DEBUG
+
 
 # environment varibles for testing MySQL backend
 
