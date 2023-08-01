@@ -12,7 +12,7 @@ with open("LICENSE") as f:
 
 setup(
     name="rapyd_db",
-    version="0.0.8",
+    version="0.0.9",
     description="An opinionated lightweight wrapper around various DB backend drivers.",
     long_description=readme,
     author="Karthic Raghupathi",

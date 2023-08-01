@@ -164,4 +164,4 @@ class Mongo(AbstractBackend):
                 )
             )
             adapter.info("Ended {} execution at {}".format(operation, execution_end))
-            return result
+            return list(result)
