@@ -26,7 +26,7 @@ def get_connection(backend, log_id=None):
     try:
         adapter.info("Connecting to DB")
         connection = backend._connect()
-    except:
+    except Exception:
         adapter.exception("Cannot connect to DB")
         raise
 
@@ -36,5 +36,5 @@ def get_connection(backend, log_id=None):
         try:
             adapter.info("Closed connection to DB")
             connection.close()
-        except:
+        except Exception:
             pass
