@@ -2,15 +2,12 @@ import abc
 import logging
 from contextlib import contextmanager
 
-import six
-
 from ..loggingadapter import LogIdAdapter
 
 _logger = logging.getLogger(__name__)
 
 
-@six.add_metaclass(abc.ABCMeta)
-class AbstractBackend:
+class AbstractBackend(metaclass=abc.ABCMeta):
     _connection_params = None
 
     @abc.abstractmethod
