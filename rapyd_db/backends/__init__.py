@@ -1,9 +1,8 @@
 import abc
 import logging
+from contextlib import contextmanager
 
 import six
-
-from contextlib import contextmanager
 
 from ..loggingadapter import LogIdAdapter
 

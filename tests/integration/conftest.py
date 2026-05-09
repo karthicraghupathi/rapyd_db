@@ -6,9 +6,7 @@ import pytest
 def pytest_collection_modifyitems(config, items):
     if os.environ.get("RUN_INTEGRATION_TESTS") == "1":
         return
-    skip_integration = pytest.mark.skip(
-        reason="integration tests off; set RUN_INTEGRATION_TESTS=1"
-    )
+    skip_integration = pytest.mark.skip(reason="integration tests off; set RUN_INTEGRATION_TESTS=1")
     for item in items:
         item.add_marker(skip_integration)
 

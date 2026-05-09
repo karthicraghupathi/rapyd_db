@@ -106,9 +106,7 @@ class TestMSSQLConnect:
 
 class TestMSSQLNoStream:
     def test_returns_triple_with_results(self, mock_pymssql):
-        _, cursor = _set_cursor(
-            mock_pymssql, rowcount=2, lastrowid=99, rows=[{"a": 1}, {"a": 2}]
-        )
+        _, cursor = _set_cursor(mock_pymssql, rowcount=2, lastrowid=99, rows=[{"a": 1}, {"a": 2}])
         db = MSSQL(host="h", user="u", password="p")
         affected, last_id, rows = db.execute("SELECT * FROM t")
         assert affected == 2
@@ -120,15 +118,11 @@ class TestMSSQLNoStream:
         _, cursor = _set_cursor(mock_pymssql)
         db = MSSQL(host="h", user="u", password="p")
         db.execute("INSERT INTO t VALUES (%s)", ("a",))
-        cursor.execute.assert_called_once_with(
-            "INSERT INTO t VALUES (%s)", ("a",)
-        )
+        cursor.execute.assert_called_once_with("INSERT INTO t VALUES (%s)", ("a",))
 
     def test_swallows_no_resultset_operationalerror(self, mock_pymssql):
         msg = "Statement not executed or executed statement has no resultset"
-        _set_cursor(
-            mock_pymssql, fetch_exc=mock_pymssql.OperationalError(msg)
-        )
+        _set_cursor(mock_pymssql, fetch_exc=mock_pymssql.OperationalError(msg))
         db = MSSQL(host="h", user="u", password="p")
         affected, _, rows = db.execute("CREATE TABLE t (a int)")
         assert rows == []
@@ -167,9 +161,7 @@ class TestMSSQLNoStream:
         db = MSSQL(host="h", user="u", password="p")
         with caplog.at_level("INFO"):
             db.execute("SELECT 1")
-        assert any(
-            "Not streaming results from DB." in r.message for r in caplog.records
-        )
+        assert any("Not streaming results from DB." in r.message for r in caplog.records)
 
     def test_logs_rows_affected_message(self, mock_pymssql, caplog):
         _set_cursor(mock_pymssql, rowcount=7)
@@ -183,12 +175,8 @@ class TestMSSQLNoStream:
         db = MSSQL(host="h", user="u", password="p")
         with caplog.at_level("INFO"):
             db.execute("SELECT 1")
-        assert any(
-            "Ended query execution at" in r.message for r in caplog.records
-        )
-        assert any(
-            "Starting executing query at" in r.message for r in caplog.records
-        )
+        assert any("Ended query execution at" in r.message for r in caplog.records)
+        assert any("Starting executing query at" in r.message for r in caplog.records)
 
 
 class TestMSSQLStream:
@@ -206,9 +194,7 @@ class TestMSSQLStream:
         db = MSSQL(host="h", user="u", password="p")
         out = list(db.execute("SELECT * FROM t WHERE x=%s", ("a",), stream=True))
         assert out == rows
-        cursor.execute.assert_called_once_with(
-            "SELECT * FROM t WHERE x=%s", ("a",)
-        )
+        cursor.execute.assert_called_once_with("SELECT * FROM t WHERE x=%s", ("a",))
 
     def test_autocommit_true_called(self, mock_pymssql):
         conn, _ = _set_cursor(mock_pymssql, iter_rows=[])
@@ -228,16 +214,12 @@ class TestMSSQLStream:
         db = MSSQL(host="h", user="u", password="p")
         with caplog.at_level("INFO"):
             list(db.execute("SELECT 1", stream=True))
-        assert any(
-            "Streaming results from DB." in r.message for r in caplog.records
-        )
+        assert any("Streaming results from DB." in r.message for r in caplog.records)
 
     def test_logs_execution_end(self, mock_pymssql, caplog):
         _set_cursor(mock_pymssql, iter_rows=[{"i": 1}])
         db = MSSQL(host="h", user="u", password="p")
         with caplog.at_level("INFO"):
             list(db.execute("SELECT 1", stream=True))
-        assert any(
-            "Ended query execution at" in r.message for r in caplog.records
-        )
+        assert any("Ended query execution at" in r.message for r in caplog.records)
         assert any("Executed in" in r.message for r in caplog.records)

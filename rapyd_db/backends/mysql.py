@@ -1,13 +1,12 @@
 import logging
-import MySQLdb
-
 from datetime import datetime
+
+import MySQLdb
 from MySQLdb.cursors import DictCursor, SSDictCursor
 
-from . import AbstractBackend, get_connection
 from ..loggingadapter import LogIdAdapter
 from ..utils import _assign_if_not_none, _get_uuid
-
+from . import AbstractBackend, get_connection
 
 _logger = logging.getLogger(__name__)
 
@@ -72,7 +71,7 @@ class MySQL(AbstractBackend):
             connection.autocommit(True)
             cursor = connection.cursor()
             execution_start = datetime.now()
-            adapter.info("Starting executing query at {}".format(execution_start))
+            adapter.info(f"Starting executing query at {execution_start}")
             adapter.info("Streaming results from DB.")
 
             if params is not None:
@@ -87,12 +86,8 @@ class MySQL(AbstractBackend):
                 yield row
 
             execution_end = datetime.now()
-            adapter.info(
-                "Executed in {} second(s)".format(
-                    (execution_end - execution_start).seconds
-                )
-            )
-            adapter.info("Ended query execution at {}".format(execution_end))
+            adapter.info(f"Executed in {(execution_end - execution_start).seconds} second(s)")
+            adapter.info(f"Ended query execution at {execution_end}")
 
     def _no_stream(self, query, params):
         # setup logging
@@ -103,7 +98,7 @@ class MySQL(AbstractBackend):
             connection.autocommit(True)
             cursor = connection.cursor()
             execution_start = datetime.now()
-            adapter.info("Starting executing query at {}".format(execution_start))
+            adapter.info(f"Starting executing query at {execution_start}")
             adapter.info("Not streaming results from DB.")
 
             if params is not None:
@@ -114,11 +109,9 @@ class MySQL(AbstractBackend):
             execution_end = datetime.now()
             adapter.info("{}".format(cursor._executed.decode("utf8")))
             adapter.info(
-                "{} row(s) affected in {} second(s)".format(
-                    rows_affected, (execution_end - execution_start).seconds
-                )
+                f"{rows_affected} row(s) affected in {(execution_end - execution_start).seconds} second(s)"
             )
-            adapter.info("Ended query execution at {}".format(execution_end))
+            adapter.info(f"Ended query execution at {execution_end}")
 
             # returns rows affected and all results
             return rows_affected, cursor.lastrowid, cursor.fetchall()

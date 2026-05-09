@@ -75,3 +75,30 @@ exclude_also = [
 fail_under = 100
 show_missing = true
 skip_covered = false
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+extend-exclude = ["build", "dist"]
+
+[tool.ruff.lint]
+select = [
+    "E", "F", "W",      # pycodestyle/pyflakes
+    "I",                # isort
+    "B",                # bugbear
+    "UP",               # pyupgrade
+    "SIM",              # simplify
+    "RUF",              # ruff-specific
+    "PT",               # pytest-style
+    "C4",               # comprehensions
+    "TID",              # tidy-imports
+]
+ignore = [
+    "E501",  # long lines — formatter handles
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["B011"]   # allow assert False
+
+[tool.ruff.format]
+quote-style = "double"

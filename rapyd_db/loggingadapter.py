@@ -11,6 +11,6 @@ class LogIdAdapter(logging.LoggerAdapter):
     def process(self, msg, kwargs):
         log_id = self.extra.get("log_id")
         if log_id:
-            return "{} - {}".format(log_id, msg), kwargs
+            return f"{log_id} - {msg}", kwargs
         else:
             return msg, kwargs

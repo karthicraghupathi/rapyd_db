@@ -77,17 +77,13 @@ class TestMySQLConnect:
     def test_connect_uses_connection_params(self, mock_mysqldb):
         db = MySQL(host="h", user="u", password="p", port=3306)
         result = db._connect()
-        mock_mysqldb.connect.assert_called_once_with(
-            host="h", user="u", password="p", port=3306
-        )
+        mock_mysqldb.connect.assert_called_once_with(host="h", user="u", password="p", port=3306)
         assert result is mock_mysqldb.connect.return_value
 
 
 class TestMySQLNoStream:
     def test_returns_triple(self, mock_mysqldb):
-        _, cursor = _set_cursor(
-            mock_mysqldb, rowcount=3, lastrowid=99, rows=[{"a": 1}]
-        )
+        _, cursor = _set_cursor(mock_mysqldb, rowcount=3, lastrowid=99, rows=[{"a": 1}])
         db = MySQL(host="h", user="u", password="p")
         rows_affected, last_id, results = db.execute("SELECT * FROM t")
         assert rows_affected == 3
@@ -99,9 +95,7 @@ class TestMySQLNoStream:
         _, cursor = _set_cursor(mock_mysqldb)
         db = MySQL(host="h", user="u", password="p")
         db.execute("INSERT INTO t VALUES (%s)", ("a",))
-        cursor.execute.assert_called_once_with(
-            "INSERT INTO t VALUES (%s)", ("a",)
-        )
+        cursor.execute.assert_called_once_with("INSERT INTO t VALUES (%s)", ("a",))
 
     def test_logs_rendered_query(self, mock_mysqldb, caplog):
         _set_cursor(mock_mysqldb, executed=b"SELECT now()")
@@ -145,9 +139,7 @@ class TestMySQLStream:
         db = MySQL(host="h", user="u", password="p")
         out = list(db.execute("SELECT * FROM t WHERE x=%s", ("a",), stream=True))
         assert out == rows
-        cursor.execute.assert_called_once_with(
-            "SELECT * FROM t WHERE x=%s", ("a",)
-        )
+        cursor.execute.assert_called_once_with("SELECT * FROM t WHERE x=%s", ("a",))
 
     def test_sets_ssdictcursor_class(self, mock_mysqldb):
         _set_cursor(mock_mysqldb, stream_rows=[])
@@ -173,17 +165,11 @@ class TestMySQLStream:
         _set_cursor(mock_mysqldb, stream_rows=[])
         db = MySQL(host="h", user="u", password="p")
         list(db.execute("SELECT 1", stream=True))
-        assert any(
-            "Streaming results from DB." in r.message for r in caplog.records
-        )
+        assert any("Streaming results from DB." in r.message for r in caplog.records)
 
     def test_logs_execution_end(self, mock_mysqldb, caplog):
         _set_cursor(mock_mysqldb, stream_rows=[{"i": 1}])
         db = MySQL(host="h", user="u", password="p")
         list(db.execute("SELECT 1", stream=True))
-        assert any(
-            "Ended query execution at" in r.message for r in caplog.records
-        )
-        assert any(
-            "Executed in" in r.message for r in caplog.records
-        )
+        assert any("Ended query execution at" in r.message for r in caplog.records)
+        assert any("Executed in" in r.message for r in caplog.records)

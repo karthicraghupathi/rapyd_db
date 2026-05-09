@@ -6,7 +6,6 @@ import unittest
 
 from rapyd_db.backends.mongo import Mongo
 
-
 logging.basicConfig(level=os.environ.get("RAPYD_DB_LOGLEVEL") or "WARNING")
 
 
@@ -18,9 +17,7 @@ class TestMongoBackend(unittest.TestCase):
         self._username = os.environ.get("MONGO_USERNAME") or getpass.getuser()
         self._password = os.environ.get("MONGO_PASSWORD")
         self._test_db = os.environ.get("MONGO_TEST_DB") or "test_db"
-        self._test_collection = (
-            os.environ.get("MONGO_TEST_COLLECTION") or "test_collection"
-        )
+        self._test_collection = os.environ.get("MONGO_TEST_COLLECTION") or "test_collection"
         self._db = Mongo(
             host=self._host,
             username=self._username,

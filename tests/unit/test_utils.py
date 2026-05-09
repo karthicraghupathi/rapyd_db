@@ -1,5 +1,4 @@
 import re
-import pytest
 
 from rapyd_db.utils import _assign_if_not_none, _get_uuid
 

@@ -31,9 +31,9 @@ def test_connect_failure_is_logged_and_raised(caplog):
     class Boom(AbstractBackend):
         def _connect(self):
             raise RuntimeError("nope")
-    with pytest.raises(RuntimeError, match="nope"):
-        with get_connection(Boom()):
-            pass
+
+    with pytest.raises(RuntimeError, match="nope"), get_connection(Boom()):
+        pass
     assert any("Cannot connect to DB" in r.message for r in caplog.records)
 
 

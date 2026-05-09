@@ -1,12 +1,11 @@
 import logging
-import pymssql
-
 from datetime import datetime
 
-from . import AbstractBackend, get_connection
+import pymssql
+
 from ..loggingadapter import LogIdAdapter
 from ..utils import _assign_if_not_none, _get_uuid
-
+from . import AbstractBackend, get_connection
 
 _logger = logging.getLogger(__name__)
 
@@ -73,7 +72,7 @@ class MSSQL(AbstractBackend):
             connection.autocommit(True)
             cursor = connection.cursor()
             execution_start = datetime.now()
-            adapter.info("Starting executing query at {}".format(execution_start))
+            adapter.info(f"Starting executing query at {execution_start}")
             adapter.info("Streaming results from DB.")
 
             if params is not None:
@@ -81,20 +80,16 @@ class MSSQL(AbstractBackend):
             else:
                 cursor.execute(query)
 
-            adapter.info("Query: {}".format(query))
-            adapter.info("Params: {}".format(params))
+            adapter.info(f"Query: {query}")
+            adapter.info(f"Params: {params}")
 
             # returns the generator object
             for row in cursor:
                 yield row
 
             execution_end = datetime.now()
-            adapter.info(
-                "Executed in {} second(s)".format(
-                    (execution_end - execution_start).seconds
-                )
-            )
-            adapter.info("Ended query execution at {}".format(execution_end))
+            adapter.info(f"Executed in {(execution_end - execution_start).seconds} second(s)")
+            adapter.info(f"Ended query execution at {execution_end}")
 
     def _no_stream(self, query, params):
         # setup logging
@@ -105,10 +100,10 @@ class MSSQL(AbstractBackend):
             connection.autocommit(True)
             cursor = connection.cursor()
             execution_start = datetime.now()
-            adapter.info("Starting executing query at {}".format(execution_start))
+            adapter.info(f"Starting executing query at {execution_start}")
             adapter.info("Not streaming results from DB.")
-            adapter.info("Query: {}".format(query))
-            adapter.info("Params: {}".format(params))
+            adapter.info(f"Query: {query}")
+            adapter.info(f"Params: {params}")
 
             if params is not None:
                 cursor.execute(query, params)
@@ -121,9 +116,7 @@ class MSSQL(AbstractBackend):
             try:
                 result = cursor.fetchall()
             except pymssql.OperationalError as e:
-                expected_msg = (
-                    "Statement not executed or executed statement has no resultset"
-                )
+                expected_msg = "Statement not executed or executed statement has no resultset"
                 if expected_msg == e.message:
                     result = []
                 else:
@@ -131,11 +124,9 @@ class MSSQL(AbstractBackend):
 
             execution_end = datetime.now()
             adapter.info(
-                "{} row(s) affected in {} second(s)".format(
-                    cursor.rowcount, (execution_end - execution_start).seconds
-                )
+                f"{cursor.rowcount} row(s) affected in {(execution_end - execution_start).seconds} second(s)"
             )
-            adapter.info("Ended query execution at {}".format(execution_end))
+            adapter.info(f"Ended query execution at {execution_end}")
 
             # returns rows affected and all results
             return cursor.rowcount, cursor.lastrowid, result

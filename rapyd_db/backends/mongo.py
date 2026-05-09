@@ -1,12 +1,11 @@
 import logging
-
 from datetime import datetime
+
 from pymongo import MongoClient
 
-from . import AbstractBackend, get_connection
 from ..loggingadapter import LogIdAdapter
 from ..utils import _assign_if_not_none, _get_uuid
-
+from . import AbstractBackend, get_connection
 
 _logger = logging.getLogger(__name__)
 
@@ -19,7 +18,7 @@ class Mongo(AbstractBackend):
         password=None,
         auth_source="admin",
         connect_timeout_ms=2000,
-        **kwargs
+        **kwargs,
     ):
         """
         Initializes an instance of the Mongo backend with the connection parameters.
@@ -42,9 +41,7 @@ class Mongo(AbstractBackend):
         _assign_if_not_none(self._connection_params, "username", username)
         _assign_if_not_none(self._connection_params, "password", password)
         _assign_if_not_none(self._connection_params, "authSource", auth_source)
-        _assign_if_not_none(
-            self._connection_params, "connectTimeoutMS", connect_timeout_ms
-        )
+        _assign_if_not_none(self._connection_params, "connectTimeoutMS", connect_timeout_ms)
         self._connection_params.update(kwargs)
         self._connection_params["connect"] = False
         self._connection_params["maxPoolSize"] = 1
@@ -96,19 +93,15 @@ class Mongo(AbstractBackend):
         database = kwargs.pop("database", None)
         collection = kwargs.pop("collection", None)
         if database is None or collection is None:
-            raise KeyError(
-                "Parameters 'database' and 'collection' are required when stream=True"
-            )
+            raise KeyError("Parameters 'database' and 'collection' are required when stream=True")
 
         with get_connection(self, log_id) as connection:
             execution_start = datetime.now()
-            adapter.info("Using database {}".format(database))
-            adapter.info("Using collection {}".format(collection))
-            adapter.info("args: {}".format(args))
-            adapter.info("kwargs: {}".format(kwargs))
-            adapter.info(
-                "Started executing {} at {}".format(operation, execution_start)
-            )
+            adapter.info(f"Using database {database}")
+            adapter.info(f"Using collection {collection}")
+            adapter.info(f"args: {args}")
+            adapter.info(f"kwargs: {kwargs}")
+            adapter.info(f"Started executing {operation} at {execution_start}")
             adapter.info("Streaming results from DB.")
             operation_callable = getattr(connection[database][collection], operation)
             result = operation_callable(*args, **kwargs)
@@ -118,12 +111,8 @@ class Mongo(AbstractBackend):
                 yield row
 
             execution_end = datetime.now()
-            adapter.info(
-                "Executed in {} second(s)".format(
-                    (execution_end - execution_start).seconds
-                )
-            )
-            adapter.info("Ended {} execution at {}".format(operation, execution_end))
+            adapter.info(f"Executed in {(execution_end - execution_start).seconds} second(s)")
+            adapter.info(f"Ended {operation} execution at {execution_end}")
 
     def _no_stream(self, operation, *args, **kwargs):
         # setup logging
@@ -137,20 +126,16 @@ class Mongo(AbstractBackend):
         with get_connection(self, log_id) as connection:
             execution_start = datetime.now()
             if database is not None:
-                adapter.info("Using database {}".format(database))
+                adapter.info(f"Using database {database}")
             if collection is not None:
-                adapter.info("Using collection {}".format(collection))
-            adapter.info("args: {}".format(args))
-            adapter.info("kwargs: {}".format(kwargs))
-            adapter.info(
-                "Started executing {} at {}".format(operation, execution_start)
-            )
+                adapter.info(f"Using collection {collection}")
+            adapter.info(f"args: {args}")
+            adapter.info(f"kwargs: {kwargs}")
+            adapter.info(f"Started executing {operation} at {execution_start}")
             adapter.info("Not streaming results from DB.")
 
             if database is not None and collection is not None:
-                operation_callable = getattr(
-                    connection[database][collection], operation
-                )
+                operation_callable = getattr(connection[database][collection], operation)
             elif database is not None and collection is None:
                 operation_callable = getattr(connection[database], operation)
             else:
@@ -158,10 +143,6 @@ class Mongo(AbstractBackend):
             result = operation_callable(*args, **kwargs)
 
             execution_end = datetime.now()
-            adapter.info(
-                "Executed in {} second(s)".format(
-                    (execution_end - execution_start).seconds
-                )
-            )
-            adapter.info("Ended {} execution at {}".format(operation, execution_end))
+            adapter.info(f"Executed in {(execution_end - execution_start).seconds} second(s)")
+            adapter.info(f"Ended {operation} execution at {execution_end}")
             return list(result)

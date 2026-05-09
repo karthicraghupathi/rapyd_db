@@ -113,9 +113,7 @@ class TestMongoNoStream:
         coll.insert_many.assert_called_once_with([{"a": 1}, {"a": 2}])
         assert result == [1, 2]
 
-    def test_dispatches_to_database_method_when_only_collection_missing(
-        self, mock_client
-    ):
+    def test_dispatches_to_database_method_when_only_collection_missing(self, mock_client):
         client, db, _ = _wire_client(mock_client)
         db.command.return_value = iter([{"ok": 1}])
         backend = Mongo(host="h", username="u", password="p")
@@ -171,9 +169,7 @@ class TestMongoNoStream:
         assert not any("Using database" in r.message for r in caplog.records)
         assert not any("Using collection" in r.message for r in caplog.records)
 
-    def test_no_collection_log_when_only_database_provided(
-        self, mock_client, caplog
-    ):
+    def test_no_collection_log_when_only_database_provided(self, mock_client, caplog):
         client, db, _ = _wire_client(mock_client)
         db.command.return_value = iter([{"ok": 1}])
         backend = Mongo(host="h", username="u", password="p")
@@ -191,9 +187,7 @@ class TestMongoNoStream:
         assert any("args:" in r.message for r in caplog.records)
         assert any("kwargs:" in r.message for r in caplog.records)
         assert any("Started executing find" in r.message for r in caplog.records)
-        assert any(
-            "Not streaming results from DB." in r.message for r in caplog.records
-        )
+        assert any("Not streaming results from DB." in r.message for r in caplog.records)
         assert any("Executed in" in r.message for r in caplog.records)
         assert any("Ended find execution at" in r.message for r in caplog.records)
 
@@ -250,9 +244,7 @@ class TestMongoStream:
         db = Mongo(host="h", username="u", password="p")
         with caplog.at_level("INFO"):
             list(db.execute("find", database="d", collection="c", stream=True))
-        assert any(
-            "Streaming results from DB." in r.message for r in caplog.records
-        )
+        assert any("Streaming results from DB." in r.message for r in caplog.records)
 
     def test_logs_execution_lifecycle(self, mock_client, caplog):
         _, _, coll = _wire_client(mock_client)
