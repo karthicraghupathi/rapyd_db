@@ -1,7 +1,19 @@
-.PHONY: install lint format type test test-unit test-integration cov build clean
+.PHONY: install install-all install-mysql install-mssql install-mongo lint format type test test-unit test-integration cov build clean
 
 install:
+	uv sync --extra dev
+
+install-all:
 	uv sync --extra dev --extra mysql --extra mssql --extra mongo
+
+install-mysql:
+	uv sync --extra dev --extra mysql
+
+install-mssql:
+	uv sync --extra dev --extra mssql
+
+install-mongo:
+	uv sync --extra dev --extra mongo
 
 lint:
 	uv run ruff check .
