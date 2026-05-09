@@ -2,7 +2,7 @@
 name = "rapyd_db"
 version = "0.0.9"
 description = "An opinionated lightweight wrapper around various DB backend drivers."
-readme = { content-type = "text/x-rst", file = "README.rst" }
+readme = "README.md"
 license = { file = "LICENSE" }
 authors = [{ name = "Karthic Raghupathi", email = "karthicr@gmail.com" }]
 requires-python = ">=3.9"
