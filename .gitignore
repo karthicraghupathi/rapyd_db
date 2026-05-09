@@ -329,3 +329,10 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.gitignore.io/api/vim,linux,macos,python,pycharm,windows,sublimetext,visualstudiocode,jupyternotebook
+
+.venv/
+.pytest_cache/
+.coverage
+htmlcov/
+.ruff_cache/
+.mypy_cache/

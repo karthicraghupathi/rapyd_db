@@ -19,3 +19,25 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["rapyd_db"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers --strict-config"
+markers = [
+    "integration: requires a running DB (skipped unless RUN_INTEGRATION_TESTS=1)",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["rapyd_db"]
+omit = ["rapyd_db/tests/*", "tests/*"]
+
+[tool.coverage.report]
+exclude_also = [
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+    "@(abc\\.)?abstractmethod",
+]
+fail_under = 100
+show_missing = true
+skip_covered = false
