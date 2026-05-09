@@ -1,0 +1,24 @@
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: rapyd
+    ports: ["3306:3306"]
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-prapyd"]
+      interval: 5s
+      retries: 20
+
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Rapyd_Pass1!"
+    ports: ["1433:1433"]
+
+  mongo:
+    image: mongo:7
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: rapyd
+      MONGO_INITDB_ROOT_PASSWORD: rapyd
+    ports: ["27017:27017"]
