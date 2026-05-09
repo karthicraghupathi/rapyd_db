@@ -58,13 +58,15 @@ class MySQL(AbstractBackend):
         :param str query: The query to execute.
         :param tuple params: A tuple of parameters for substitution prior to executing the query.
         :param bool stream:
-            When `True`, a generator is returned which will fetch data from the
-            DB in a lazy fashion. Typically used when you want to
-            return large volumes of data from the DB while while avoiding `MemoryError`.
+            When `True`, a generator is returned which fetches rows from the DB
+            lazily via a server-side cursor (`SSDictCursor`). Typically used
+            when returning large result sets while avoiding `MemoryError`.
         :return:
-            Returns a generator when `stream` is `True`. Otherwise returns a
-            tuple of the rows affected and a list of all rows returned after
-            query execution.
+            When `stream=False` (default), returns a tuple of
+            `(rows_affected, lastrowid, results_list)` where `results_list` is
+            a list of dict rows.
+            When `stream=True`, returns a generator yielding dict rows one at
+            a time from a server-side cursor.
         """
         # the return has to be done this way to accommodate having
         # `yield` and `return` in the same method

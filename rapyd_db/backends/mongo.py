@@ -56,23 +56,39 @@ class Mongo(AbstractBackend):
 
     def execute(self, operation: str, *args: Any, **kwargs: Any) -> Any:
         """
-        Executes the query and returns the result.
+        Dispatches a named pymongo operation and returns the result.
 
-        :param str operation: Operation to run.
-        :param str database: Database to use.
-        :param str collection: Collection to use.
-        :param bool stream:
-            When `True`, a generator is returned which will fetch data from the
-            DB in a lazy fashion. Typically used when you want to
-            return large volumes of data from the DB while while avoiding `MemoryError`.
-            Parameters `database` and `collection` are required when `stream=True`.
+        The first positional argument is the operation name (a string method
+        name on the resolved pymongo target). The dispatch target is chosen
+        from the `database` / `collection` keyword arguments:
+
+        - `database` and `collection` both provided -> calls
+          `client[database][collection].operation(*args, **kwargs)`
+          (collection-level methods such as `find`, `insert_one`, etc.).
+        - `database` only -> calls `client[database].operation(*args, **kwargs)`
+          (database-level commands).
+        - neither -> calls `client.operation(*args, **kwargs)`
+          (client-level methods such as `server_info`).
+
+        :param str operation: Name of the pymongo method to invoke on the
+            resolved dispatch target.
+        :param str database: (keyword) Database to use; consumed before dispatch.
+        :param str collection: (keyword) Collection to use; consumed before dispatch.
+        :param bool stream: (keyword)
+            When `True`, a generator is returned which iterates lazily over
+            the operation's result (e.g. a cursor from `find`). Typically
+            used when returning large result sets while avoiding `MemoryError`.
+            Both `database` and `collection` are required when `stream=True`.
         :param args:
-            All other positional arguments supported by the method you are calling via operation.
+            Remaining positional arguments forwarded to the pymongo method.
         :param kwargs:
-            All other keyword arguments supported by the method you are calling via operation.
+            Remaining keyword arguments forwarded to the pymongo method
+            (after `database`, `collection`, and `stream` are consumed).
         :return:
-            Returns a generator when `stream` is `True`. Otherwise returns a
-            the result of the method you are calling via operation.
+            When `stream=True`, returns a generator yielding items from the
+            underlying pymongo cursor.
+            When `stream=False`, returns the materialized result of the
+            dispatched call (lists are returned as `list(result)`).
         """
         # in python 2 default arguments cannot be used with args and kwargs
         # https://stackoverflow.com/a/15302038/399435
