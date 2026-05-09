@@ -206,8 +206,6 @@ secretstorage==3.3.3 ; python_full_version < '3.10' and platform_machine != 'ppc
     # via keyring
 secretstorage==3.5.0 ; python_full_version >= '3.10' and platform_machine != 'ppc64le' and platform_machine != 's390x' and sys_platform == 'linux'
     # via keyring
-six==1.17.0
-    # via rapyd-db
 tomli==2.4.1 ; python_full_version <= '3.11'
     # via
     #   build
