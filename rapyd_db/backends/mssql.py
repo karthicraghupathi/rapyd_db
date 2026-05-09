@@ -116,10 +116,10 @@ class MSSQL(AbstractBackend):
                 result = cursor.fetchall()
             except pymssql.OperationalError as e:
                 expected_msg = "Statement not executed or executed statement has no resultset"
-                if expected_msg == e.message:
+                if e.args and e.args[0] == expected_msg:
                     result = []
                 else:
-                    raise e
+                    raise
 
             execution_end = datetime.now()
             adapter.info(

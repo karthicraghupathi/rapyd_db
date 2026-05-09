@@ -13,7 +13,6 @@ _pymssql_stub.set_max_connections = MagicMock()
 class _OpError(Exception):
     def __init__(self, message):
         super().__init__(message)
-        self.message = message
 
 
 _pymssql_stub.OperationalError = _OpError
@@ -27,7 +26,6 @@ from rapyd_db.backends.mssql import MSSQL  # noqa: E402
 class FakeOpError(Exception):
     def __init__(self, message):
         super().__init__(message)
-        self.message = message
 
 
 @pytest.fixture
