@@ -1,0 +1,12 @@
+version: 2
+
+# These files contain dev-only credentials that match the docker-compose
+# fixtures used for local integration testing. They are not real secrets and
+# never connect to anything outside a contributor's laptop or the ephemeral
+# CI service containers.
+secret:
+  ignored_paths:
+    - "tests/integration/.env.example"
+    - "docker-compose.yml"
+    - "docs/superpowers/plans/2026-05-09-modernization.md"
+    - ".github/workflows/test.yml"
