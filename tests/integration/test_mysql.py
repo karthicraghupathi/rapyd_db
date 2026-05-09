@@ -15,7 +15,7 @@ class TestMySQLBackend(unittest.TestCase):
     def setUp(self):
         # read connection params from environment variables
         self._host = os.environ.get("MYSQL_HOST") or "localhost"
-        self._port = os.environ.get("MYSQL_PORT") or 3306
+        self._port = int(os.environ.get("MYSQL_PORT") or 3306)
         self._user = os.environ.get("MYSQL_USER") or getpass.getuser()
         self._password = os.environ.get("MYSQL_PASSWORD")
         self._test_db = os.environ.get("MYSQL_TEST_DB") or "test_db"

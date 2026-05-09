@@ -15,7 +15,7 @@ class TestMSSQLBackend(unittest.TestCase):
     def setUp(self):
         # read connection params from environment variables
         self._host = os.environ.get("MSSQL_HOST") or "localhost"
-        self._port = os.environ.get("MSSQL_PORT") or 1433
+        self._port = int(os.environ.get("MSSQL_PORT") or 1433)
         self._user = os.environ.get("MSSQL_USER") or getpass.getuser()
         self._password = os.environ.get("MSSQL_PASSWORD")
         self._test_db = os.environ.get("MSSQL_TEST_DB") or "test_db"

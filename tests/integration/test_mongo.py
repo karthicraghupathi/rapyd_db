@@ -13,7 +13,7 @@ class TestMongoBackend(unittest.TestCase):
     def setUp(self):
         # read connection params from environment variables
         self._host = os.environ.get("MONGO_HOST") or "localhost"
-        self._port = os.environ.get("MONGO_PORT") or 27017
+        self._port = int(os.environ.get("MONGO_PORT") or 27017)
         self._username = os.environ.get("MONGO_USERNAME") or getpass.getuser()
         self._password = os.environ.get("MONGO_PASSWORD")
         self._test_db = os.environ.get("MONGO_TEST_DB") or "test_db"
