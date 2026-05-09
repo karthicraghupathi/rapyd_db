@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 import abc
 import logging
 from contextlib import contextmanager
+from typing import Any, Iterator, Optional
 
 from ..loggingadapter import LogIdAdapter
 
@@ -8,28 +11,29 @@ _logger = logging.getLogger(__name__)
 
 
 class AbstractBackend(metaclass=abc.ABCMeta):
-    _connection_params = None
+    _connection_params: dict[str, Any] | None = None
 
     @abc.abstractmethod
-    def _connect(self):
-        """Connects to the backend and returns a connection."""
+    def _connect(self) -> Any:
+        """Connect to the backend and return a driver connection."""
 
-    def execute(self, stream=False, *args, **kwargs):
-        """Executes the query and returns the result."""
+    def execute(self, stream: bool = False, *args: Any, **kwargs: Any) -> Any:
+        """Execute the query and return the result."""
 
 
 @contextmanager
-def get_connection(backend, log_id=None):
+def get_connection(
+    backend: AbstractBackend,
+    log_id: Optional[str] = None,
+) -> Iterator[Any]:
     """Returns a DB connection."""
-    adapter = LogIdAdapter(_logger, dict(log_id=log_id))
-
+    adapter = LogIdAdapter(_logger, {"log_id": log_id})
     try:
         adapter.info("Connecting to DB")
         connection = backend._connect()
     except Exception:
         adapter.exception("Cannot connect to DB")
         raise
-
     try:
         yield connection
     finally:
