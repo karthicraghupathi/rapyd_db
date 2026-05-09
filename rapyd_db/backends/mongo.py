@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import logging
 from datetime import datetime
+from typing import Any, Iterator
 
 from pymongo import MongoClient
 
@@ -13,13 +16,13 @@ _logger = logging.getLogger(__name__)
 class Mongo(AbstractBackend):
     def __init__(
         self,
-        host=None,
-        username=None,
-        password=None,
-        auth_source="admin",
-        connect_timeout_ms=2000,
-        **kwargs,
-    ):
+        host: str | None = None,
+        username: str | None = None,
+        password: str | None = None,
+        auth_source: str = "admin",
+        connect_timeout_ms: int = 2000,
+        **kwargs: Any,
+    ) -> None:
         """
         Initializes an instance of the Mongo backend with the connection parameters.
 
@@ -46,10 +49,10 @@ class Mongo(AbstractBackend):
         self._connection_params["connect"] = False
         self._connection_params["maxPoolSize"] = 1
 
-    def _connect(self):
+    def _connect(self) -> Any:
         return MongoClient(**self._connection_params)
 
-    def execute(self, operation, *args, **kwargs):
+    def execute(self, operation: str, *args: Any, **kwargs: Any) -> Any:
         """
         Executes the query and returns the result.
 
@@ -84,7 +87,7 @@ class Mongo(AbstractBackend):
         else:
             return self._no_stream(operation, *args, **kwargs)
 
-    def _stream(self, operation, *args, **kwargs):
+    def _stream(self, operation: str, *args: Any, **kwargs: Any) -> Iterator[Any]:
         # setup logging
         log_id = _get_uuid()
         adapter = LogIdAdapter(_logger, dict(log_id=log_id))
@@ -114,7 +117,7 @@ class Mongo(AbstractBackend):
             adapter.info(f"Executed in {(execution_end - execution_start).seconds} second(s)")
             adapter.info(f"Ended {operation} execution at {execution_end}")
 
-    def _no_stream(self, operation, *args, **kwargs):
+    def _no_stream(self, operation: str, *args: Any, **kwargs: Any) -> list[Any]:
         # setup logging
         log_id = _get_uuid()
         adapter = LogIdAdapter(_logger, dict(log_id=log_id))
