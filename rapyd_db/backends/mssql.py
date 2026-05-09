@@ -35,7 +35,6 @@ class MSSQL(AbstractBackend):
         self._connection_params["as_dict"] = True
 
     def _connect(self):
-        pymssql.set_max_connections(1)
         return pymssql.connect(**self._connection_params)
 
     def execute(self, query, params=None, stream=False):

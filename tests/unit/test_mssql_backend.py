@@ -90,10 +90,10 @@ class TestMSSQLInit:
 
 
 class TestMSSQLConnect:
-    def test_sets_max_connections(self, mock_pymssql):
+    def test_does_not_set_max_connections(self, mock_pymssql):
         db = MSSQL(host="h", user="u", password="p")
         db._connect()
-        mock_pymssql.set_max_connections.assert_called_once_with(1)
+        mock_pymssql.set_max_connections.assert_not_called()
 
     def test_connect_uses_connection_params(self, mock_pymssql):
         db = MSSQL(host="h", user="u", password="p", port=1433)
