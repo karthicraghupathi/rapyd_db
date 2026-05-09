@@ -11,13 +11,13 @@ _logger = logging.getLogger(__name__)
 
 
 class AbstractBackend(metaclass=abc.ABCMeta):
-    _connection_params: dict[str, Any] | None = None
+    _connection_params: dict[str, Any]
 
     @abc.abstractmethod
     def _connect(self) -> Any:
         """Connect to the backend and return a driver connection."""
 
-    def execute(self, stream: bool = False, *args: Any, **kwargs: Any) -> Any:
+    def execute(self, *args: Any, **kwargs: Any) -> Any:
         """Execute the query and return the result."""
 
 
