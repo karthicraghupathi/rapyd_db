@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import abc
 import logging
+from collections.abc import Iterator
 from contextlib import contextmanager
-from typing import Any, Iterator, Optional
+from typing import Any
 
-from ..loggingadapter import LogIdAdapter
+from rapyd_db.loggingadapter import LogIdAdapter
 
 _logger = logging.getLogger(__name__)
 
@@ -17,14 +18,14 @@ class AbstractBackend(metaclass=abc.ABCMeta):
     def _connect(self) -> Any:
         """Connect to the backend and return a driver connection."""
 
-    def execute(self, *args: Any, **kwargs: Any) -> Any:
+    def execute(self, *args: Any, **kwargs: Any) -> Any:  # noqa: B027
         """Execute the query and return the result."""
 
 
 @contextmanager
 def get_connection(
     backend: AbstractBackend,
-    log_id: Optional[str] = None,
+    log_id: str | None = None,
 ) -> Iterator[Any]:
     """Returns a DB connection."""
     adapter = LogIdAdapter(_logger, {"log_id": log_id})

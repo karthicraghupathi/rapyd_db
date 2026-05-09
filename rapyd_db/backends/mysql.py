@@ -1,14 +1,16 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Iterator
 from datetime import datetime
-from typing import Any, Iterator
+from typing import Any
 
 import MySQLdb
 from MySQLdb.cursors import DictCursor, SSDictCursor
 
-from ..loggingadapter import LogIdAdapter
-from ..utils import _assign_if_not_none, _get_uuid
+from rapyd_db.loggingadapter import LogIdAdapter
+from rapyd_db.utils import _assign_if_not_none, _get_uuid
+
 from . import AbstractBackend, get_connection
 
 _logger = logging.getLogger(__name__)
@@ -33,7 +35,7 @@ class MySQL(AbstractBackend):
             Refer https://mysqlclient.readthedocs.io/user_guide.html#functions-and-attributes for additional examples.
             Note: `cursorclass` is limited to return dictionaries only and cannot be changed.
         """
-        self._connection_params = dict()
+        self._connection_params = {}
         _assign_if_not_none(self._connection_params, "host", host)
         _assign_if_not_none(self._connection_params, "user", user)
         _assign_if_not_none(self._connection_params, "password", password)
@@ -83,7 +85,7 @@ class MySQL(AbstractBackend):
     ) -> Iterator[dict[str, Any]]:
         # setup logging
         log_id = _get_uuid()
-        adapter = LogIdAdapter(_logger, dict(log_id=log_id))
+        adapter = LogIdAdapter(_logger, {"log_id": log_id})
 
         with get_connection(self, log_id) as connection:
             connection.autocommit(True)
@@ -102,8 +104,7 @@ class MySQL(AbstractBackend):
                 adapter.info("Params: %s", (params,))
 
             # returns the generator object
-            for row in cursor:
-                yield row
+            yield from cursor
 
             execution_end = datetime.now()
             adapter.info(f"Executed in {(execution_end - execution_start).seconds} second(s)")
@@ -116,7 +117,7 @@ class MySQL(AbstractBackend):
     ) -> tuple[int, int | None, list[dict[str, Any]]]:
         # setup logging
         log_id = _get_uuid()
-        adapter = LogIdAdapter(_logger, dict(log_id=log_id))
+        adapter = LogIdAdapter(_logger, {"log_id": log_id})
 
         with get_connection(self, log_id) as connection:
             connection.autocommit(True)

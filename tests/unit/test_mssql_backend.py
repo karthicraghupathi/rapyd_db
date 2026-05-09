@@ -122,7 +122,7 @@ class TestMSSQLNoStream:
         msg = "Statement not executed or executed statement has no resultset"
         _set_cursor(mock_pymssql, fetch_exc=mock_pymssql.OperationalError(msg))
         db = MSSQL(host="h", user="u", password="p")
-        affected, _, rows = db.execute("CREATE TABLE t (a int)")
+        _affected, _, rows = db.execute("CREATE TABLE t (a int)")
         assert rows == []
 
     def test_reraises_other_operationalerror(self, mock_pymssql):

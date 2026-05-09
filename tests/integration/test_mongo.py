@@ -27,7 +27,7 @@ class TestMongoBackend(unittest.TestCase):
 
     def test_00_mongo_db_connection(self):
         result = self._db.execute("server_info")
-        self.assertIn("version", result)
+        assert "version" in result
 
     def test_03_mongo_insert_salaries(self):
         data = []
@@ -36,7 +36,7 @@ class TestMongoBackend(unittest.TestCase):
             reader = csv.DictReader(data_file)
             for row in reader:
                 data.append(row)
-        self.assertEqual(1000, len(data))
+        assert len(data) == 1000
         self._db.execute(
             "insert_many",
             data,
@@ -53,9 +53,9 @@ class TestMongoBackend(unittest.TestCase):
             stream=True,
         )
         count = 0
-        for row in rows:
+        for _row in rows:
             count += 1
-        self.assertEqual(1000, count)
+        assert count == 1000
 
     def test_99_mongo_delete_test_db(self):
         self._db.execute("drop_database", self._test_db)

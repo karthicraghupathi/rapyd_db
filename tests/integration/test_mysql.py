@@ -23,14 +23,14 @@ class TestMySQLBackend(unittest.TestCase):
         self._db = MySQL(host=self._host, user=self._user, password=self._password, port=self._port)
 
     def test_00_mysql_db_connection(self):
-        rows_affected, last_row_id, rows = self._db.execute("SELECT version()", stream=False)
-        self.assertIn("version()", rows[0])
+        _rows_affected, _last_row_id, rows = self._db.execute("SELECT version()", stream=False)
+        assert "version()" in rows[0]
 
     def test_01_mysql_create_test_db(self):
-        rows_affected, last_row_id, rows = self._db.execute(
+        rows_affected, _last_row_id, _rows = self._db.execute(
             f"CREATE DATABASE IF NOT EXISTS `{self._test_db}`", stream=False
         )
-        self.assertEqual(rows_affected, 1)
+        assert rows_affected == 1
 
     def test_02_mysql_create_salaries_table(self):
         query = (
@@ -50,7 +50,7 @@ class TestMySQLBackend(unittest.TestCase):
             reader = csv.DictReader(data_file)
             for row in reader:
                 data.append(tuple(row.values()))
-        self.assertEqual(1000, len(data))
+        assert len(data) == 1000
         query = (
             f"INSERT INTO `{self._test_db}`.`salaries` (`emp_no`, `salary`, `from_date`, `to_date`)"
             " VALUES (%s, %s, %s, %s)"
@@ -65,15 +65,15 @@ class TestMySQLBackend(unittest.TestCase):
         query = f"SELECT * FROM {self._test_db}.`salaries`"
         rows = self._db.execute(query, stream=True)
         count = 0
-        for row in rows:
+        for _row in rows:
             count += 1
-        self.assertEqual(1000, count)
+        assert count == 1000
 
     def test_99_mysql_delete_test_db(self):
-        rows_affected, last_row_id, rows = self._db.execute(
+        rows_affected, _last_row_id, _rows = self._db.execute(
             f"DROP DATABASE IF EXISTS `{self._test_db}`"
         )
-        self.assertEqual(rows_affected, 1)
+        assert rows_affected == 1
 
 
 if __name__ == "__main__":

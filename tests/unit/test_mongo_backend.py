@@ -114,7 +114,7 @@ class TestMongoNoStream:
         assert result == [1, 2]
 
     def test_dispatches_to_database_method_when_only_collection_missing(self, mock_client):
-        client, db, _ = _wire_client(mock_client)
+        _client, db, _ = _wire_client(mock_client)
         db.command.return_value = iter([{"ok": 1}])
         backend = Mongo(host="h", username="u", password="p")
         result = backend.execute("command", "ping", database="admin")
@@ -170,7 +170,7 @@ class TestMongoNoStream:
         assert not any("Using collection" in r.message for r in caplog.records)
 
     def test_no_collection_log_when_only_database_provided(self, mock_client, caplog):
-        client, db, _ = _wire_client(mock_client)
+        _client, db, _ = _wire_client(mock_client)
         db.command.return_value = iter([{"ok": 1}])
         backend = Mongo(host="h", username="u", password="p")
         with caplog.at_level("INFO"):

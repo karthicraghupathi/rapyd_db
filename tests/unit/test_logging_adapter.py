@@ -24,5 +24,5 @@ def test_returns_msg_unchanged_when_log_id_missing():
 
 def test_returns_msg_unchanged_when_log_id_falsy():
     adapter = _adapter({"log_id": None})
-    msg, kwargs = adapter.process("hello", {})
+    msg, _kwargs = adapter.process("hello", {})
     assert msg == "hello"

@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Iterator
 from datetime import datetime
-from typing import Any, Iterator
+from typing import Any
 
 from pymongo import MongoClient
 
-from ..loggingadapter import LogIdAdapter
-from ..utils import _assign_if_not_none, _get_uuid
+from rapyd_db.loggingadapter import LogIdAdapter
+from rapyd_db.utils import _assign_if_not_none, _get_uuid
+
 from . import AbstractBackend, get_connection
 
 _logger = logging.getLogger(__name__)
@@ -39,7 +41,7 @@ class Mongo(AbstractBackend):
             Note: `maxPoolSize` is set to 1 only and cannot be changed.
             Note: `connect` is also set to False because a connection should only occur while querying
         """
-        self._connection_params = dict()
+        self._connection_params = {}
         _assign_if_not_none(self._connection_params, "host", host)
         _assign_if_not_none(self._connection_params, "username", username)
         _assign_if_not_none(self._connection_params, "password", password)
@@ -90,7 +92,7 @@ class Mongo(AbstractBackend):
     def _stream(self, operation: str, *args: Any, **kwargs: Any) -> Iterator[Any]:
         # setup logging
         log_id = _get_uuid()
-        adapter = LogIdAdapter(_logger, dict(log_id=log_id))
+        adapter = LogIdAdapter(_logger, {"log_id": log_id})
 
         # get some optional parms if present
         database = kwargs.pop("database", None)
@@ -110,8 +112,7 @@ class Mongo(AbstractBackend):
             result = operation_callable(*args, **kwargs)
 
             # returns the generator object
-            for row in result:
-                yield row
+            yield from result
 
             execution_end = datetime.now()
             adapter.info(f"Executed in {(execution_end - execution_start).seconds} second(s)")
@@ -120,7 +121,7 @@ class Mongo(AbstractBackend):
     def _no_stream(self, operation: str, *args: Any, **kwargs: Any) -> list[Any]:
         # setup logging
         log_id = _get_uuid()
-        adapter = LogIdAdapter(_logger, dict(log_id=log_id))
+        adapter = LogIdAdapter(_logger, {"log_id": log_id})
 
         # get some optional parms if present
         database = kwargs.pop("database", None)

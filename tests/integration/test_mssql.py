@@ -23,13 +23,13 @@ class TestMSSQLBackend(unittest.TestCase):
         self._db = MSSQL(host=self._host, user=self._user, password=self._password, port=self._port)
 
     def test_00_mssql_db_connection(self):
-        rows_affected, last_row_id, rows = self._db.execute(
+        _rows_affected, _last_row_id, rows = self._db.execute(
             "SELECT @@VERSION AS 'version'", stream=False
         )
-        self.assertIn("version", rows[0])
+        assert "version" in rows[0]
 
     def test_01_mssql_create_test_db(self):
-        rows_affected, last_row_id, rows = self._db.execute(
+        _rows_affected, _last_row_id, _rows = self._db.execute(
             f"CREATE DATABASE [{self._test_db}]", stream=False
         )
 
@@ -51,7 +51,7 @@ class TestMSSQLBackend(unittest.TestCase):
             reader = csv.DictReader(data_file)
             for row in reader:
                 data.append(tuple(row.values()))
-        self.assertEqual(1000, len(data))
+        assert len(data) == 1000
         query = (
             f"INSERT INTO [{self._test_db}].[dbo].[salaries] ([emp_no], [salary], [from_date], [to_date])"
             " VALUES (%s, %s, %s, %s)"
@@ -66,12 +66,12 @@ class TestMSSQLBackend(unittest.TestCase):
         query = f"SELECT * FROM [{self._test_db}].[dbo].[salaries]"
         rows = self._db.execute(query, stream=True)
         count = 0
-        for row in rows:
+        for _row in rows:
             count += 1
-        self.assertEqual(1000, count)
+        assert count == 1000
 
     def test_99_mssql_delete_test_db(self):
-        rows_affected, last_row_id, rows = self._db.execute(f"DROP DATABASE [{self._test_db}]")
+        _rows_affected, _last_row_id, _rows = self._db.execute(f"DROP DATABASE [{self._test_db}]")
 
 
 if __name__ == "__main__":
