@@ -202,7 +202,6 @@ docs/_build/
 target/
 
 # pyenv
-.python-version
 
 # pipenv
 #   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
@@ -336,3 +335,8 @@ $RECYCLE.BIN/
 htmlcov/
 .ruff_cache/
 .mypy_cache/
+.idea/
+.vscode/
+*.egg-info/
+build/
+dist/
