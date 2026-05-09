@@ -6,6 +6,8 @@ from datetime import datetime
 from typing import Any
 
 from pymongo import MongoClient
+from pymongo.command_cursor import CommandCursor
+from pymongo.cursor import Cursor
 
 from rapyd_db.loggingadapter import LogIdAdapter
 from rapyd_db.utils import _assign_if_not_none, _get_uuid
@@ -134,7 +136,7 @@ class Mongo(AbstractBackend):
             adapter.info(f"Executed in {(execution_end - execution_start).seconds} second(s)")
             adapter.info(f"Ended {operation} execution at {execution_end}")
 
-    def _no_stream(self, operation: str, *args: Any, **kwargs: Any) -> list[Any]:
+    def _no_stream(self, operation: str, *args: Any, **kwargs: Any) -> Any:
         # setup logging
         log_id = _get_uuid()
         adapter = LogIdAdapter(_logger, {"log_id": log_id})
@@ -165,4 +167,10 @@ class Mongo(AbstractBackend):
             execution_end = datetime.now()
             adapter.info(f"Executed in {(execution_end - execution_start).seconds} second(s)")
             adapter.info(f"Ended {operation} execution at {execution_end}")
-            return list(result)
+            # pymongo 4: cursor results must be materialized inside the
+            # context manager (the connection is closed on exit). Other return
+            # types (InsertManyResult, dict from command(), None from
+            # drop_database, etc.) are passed through unchanged.
+            if isinstance(result, (Cursor, CommandCursor)):
+                return list(result)
+            return result

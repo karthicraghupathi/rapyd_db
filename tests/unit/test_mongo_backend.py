@@ -7,11 +7,44 @@ from unittest.mock import MagicMock, patch
 # module import cleanly without the real driver.
 _pymongo_stub = types.ModuleType("pymongo")
 _pymongo_stub.MongoClient = MagicMock()
+
+
+class _StubCursor:
+    """Stand-in for pymongo.cursor.Cursor when pymongo is not installed."""
+
+
+class _StubCommandCursor:
+    """Stand-in for pymongo.command_cursor.CommandCursor when pymongo is not installed."""
+
+
+_pymongo_cursor_stub = types.ModuleType("pymongo.cursor")
+_pymongo_cursor_stub.Cursor = _StubCursor
+_pymongo_command_cursor_stub = types.ModuleType("pymongo.command_cursor")
+_pymongo_command_cursor_stub.CommandCursor = _StubCommandCursor
+
 sys.modules.setdefault("pymongo", _pymongo_stub)
+sys.modules.setdefault("pymongo.cursor", _pymongo_cursor_stub)
+sys.modules.setdefault("pymongo.command_cursor", _pymongo_command_cursor_stub)
 
 import pytest  # noqa: E402
+from pymongo.cursor import Cursor  # noqa: E402
 
 from rapyd_db.backends.mongo import Mongo  # noqa: E402
+
+
+class _CursorLike(Cursor):
+    """Cursor subclass that bypasses Cursor.__init__ for testing."""
+
+    def __init__(self, items):
+        self._items = list(items)
+
+    def __iter__(self):
+        return iter(self._items)
+
+
+def _cursor_mock(items):
+    """Return an object that passes isinstance(_, Cursor) and iterates as items."""
+    return _CursorLike(items)
 
 
 @pytest.fixture
@@ -102,7 +135,8 @@ class TestMongoConnect:
 class TestMongoNoStream:
     def test_dispatches_to_collection_method(self, mock_client):
         _, _, coll = _wire_client(mock_client)
-        coll.insert_many.return_value = iter([1, 2])
+        sentinel = MagicMock(inserted_ids=[1, 2])
+        coll.insert_many.return_value = sentinel
         db = Mongo(host="h", username="u", password="p")
         result = db.execute(
             "insert_many",
@@ -111,23 +145,24 @@ class TestMongoNoStream:
             collection="c",
         )
         coll.insert_many.assert_called_once_with([{"a": 1}, {"a": 2}])
-        assert result == [1, 2]
+        # non-cursor results (InsertManyResult etc.) pass through unchanged
+        assert result is sentinel
 
     def test_dispatches_to_database_method_when_only_collection_missing(self, mock_client):
         _client, db, _ = _wire_client(mock_client)
-        db.command.return_value = iter([{"ok": 1}])
+        db.command.return_value = {"ok": 1}
         backend = Mongo(host="h", username="u", password="p")
         result = backend.execute("command", "ping", database="admin")
         db.command.assert_called_once_with("ping")
-        assert result == [{"ok": 1}]
+        assert result == {"ok": 1}
 
     def test_server_info_bypasses_db_requirement(self, mock_client):
         client, _, _ = _wire_client(mock_client)
-        client.server_info.return_value = iter([{"version": "7.0"}])
+        client.server_info.return_value = {"version": "7.0"}
         db = Mongo(host="h", username="u", password="p")
         result = db.execute("server_info")
         client.server_info.assert_called_once_with()
-        assert result == [{"version": "7.0"}]
+        assert result == {"version": "7.0"}
 
     def test_kwargs_passed_through(self, mock_client):
         _, _, coll = _wire_client(mock_client)
@@ -136,11 +171,11 @@ class TestMongoNoStream:
         db.execute("find", {"a": 1}, database="d", collection="c", limit=10)
         coll.find.assert_called_once_with({"a": 1}, limit=10)
 
-    def test_returns_list_not_generator(self, mock_client):
-        # pymongo 4 fix: _no_stream materializes via list(result) so we don't
-        # iterate after the connection context exits.
+    def test_returns_list_when_result_is_cursor(self, mock_client):
+        # pymongo 4 fix: cursor results are materialized via list(result) so we
+        # don't try to iterate after the connection context exits.
         _, _, coll = _wire_client(mock_client)
-        coll.find.return_value = iter([{"i": 0}, {"i": 1}])
+        coll.find.return_value = _cursor_mock([{"i": 0}, {"i": 1}])
         db = Mongo(host="h", username="u", password="p")
         out = db.execute("find", {}, database="d", collection="c")
         assert isinstance(out, list)
