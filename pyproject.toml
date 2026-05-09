@@ -1,6 +1,6 @@
 [project]
 name = "rapyd_db"
-version = "0.0.9"
+version = "0.1.0"
 description = "An opinionated lightweight wrapper around various DB backend drivers."
 readme = "README.md"
 license = { file = "LICENSE" }

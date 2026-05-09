@@ -1801,7 +1801,7 @@ wheels = [
 
 [[package]]
 name = "rapyd-db"
-version = "0.0.9"
+version = "0.1.0"
 source = { editable = "." }
 
 [package.optional-dependencies]

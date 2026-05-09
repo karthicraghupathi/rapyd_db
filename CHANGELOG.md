@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-05-09
+
 ### Added
 - `pyproject.toml` as the single source of truth for build, deps, and tool config.
 - Mocked unit-test layer with 100% line + branch coverage of the package.
