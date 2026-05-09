@@ -1,5 +1,0 @@
-Cython
-six
-mysqlclient==1.4.4
-pymongo==3.9.0
-pymssql==2.1.4
