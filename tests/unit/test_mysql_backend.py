@@ -28,14 +28,12 @@ def mock_mysqldb():
 def _set_cursor(
     mock_mysqldb,
     *,
-    executed=b"SELECT 1",
     rowcount=1,
     lastrowid=42,
     rows=None,
     stream_rows=None,
 ):
     cursor = MagicMock()
-    cursor._executed = executed
     cursor.execute.return_value = rowcount
     cursor.lastrowid = lastrowid
     cursor.fetchall.return_value = rows if rows is not None else [{"x": 1}]
@@ -98,10 +96,18 @@ class TestMySQLNoStream:
         cursor.execute.assert_called_once_with("INSERT INTO t VALUES (%s)", ("a",))
 
     def test_logs_rendered_query(self, mock_mysqldb, caplog):
-        _set_cursor(mock_mysqldb, executed=b"SELECT now()")
+        _set_cursor(mock_mysqldb)
         db = MySQL(host="h", user="u", password="p")
-        db.execute("SELECT now()")
-        assert any("SELECT now()" in r.message for r in caplog.records)
+        with caplog.at_level("INFO"):
+            db.execute("SELECT now()")
+        assert any("Query: SELECT now()" in r.getMessage() for r in caplog.records)
+
+    def test_logs_params_when_provided(self, mock_mysqldb, caplog):
+        _set_cursor(mock_mysqldb)
+        db = MySQL(host="h", user="u", password="p")
+        with caplog.at_level("INFO"):
+            db.execute("INSERT INTO t VALUES (%s)", ("a",))
+        assert any("Params:" in r.getMessage() for r in caplog.records)
 
     def test_sets_dictcursor_class(self, mock_mysqldb):
         _set_cursor(mock_mysqldb)
@@ -156,10 +162,18 @@ class TestMySQLStream:
         conn.autocommit.assert_called_once_with(True)
 
     def test_logs_rendered_query(self, mock_mysqldb, caplog):
-        _set_cursor(mock_mysqldb, executed=b"SELECT now()", stream_rows=[])
+        _set_cursor(mock_mysqldb, stream_rows=[])
         db = MySQL(host="h", user="u", password="p")
-        list(db.execute("SELECT now()", stream=True))
-        assert any("SELECT now()" in r.message for r in caplog.records)
+        with caplog.at_level("INFO"):
+            list(db.execute("SELECT now()", stream=True))
+        assert any("Query: SELECT now()" in r.getMessage() for r in caplog.records)
+
+    def test_logs_params_when_provided(self, mock_mysqldb, caplog):
+        _set_cursor(mock_mysqldb, stream_rows=[])
+        db = MySQL(host="h", user="u", password="p")
+        with caplog.at_level("INFO"):
+            list(db.execute("SELECT * FROM t WHERE x=%s", ("a",), stream=True))
+        assert any("Params:" in r.getMessage() for r in caplog.records)
 
     def test_logs_streaming_message(self, mock_mysqldb, caplog):
         _set_cursor(mock_mysqldb, stream_rows=[])

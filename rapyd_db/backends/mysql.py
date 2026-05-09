@@ -79,7 +79,9 @@ class MySQL(AbstractBackend):
             else:
                 cursor.execute(query)
 
-            adapter.info("{}".format(cursor._executed.decode("utf8")))
+            adapter.info("Query: %s", query)
+            if params is not None:
+                adapter.info("Params: %s", (params,))
 
             # returns the generator object
             for row in cursor:
@@ -107,7 +109,9 @@ class MySQL(AbstractBackend):
                 rows_affected = cursor.execute(query)
 
             execution_end = datetime.now()
-            adapter.info("{}".format(cursor._executed.decode("utf8")))
+            adapter.info("Query: %s", query)
+            if params is not None:
+                adapter.info("Params: %s", (params,))
             adapter.info(
                 f"{rows_affected} row(s) affected in {(execution_end - execution_start).seconds} second(s)"
             )
