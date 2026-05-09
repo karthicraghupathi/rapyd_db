@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import logging
 from datetime import datetime
+from typing import Any, Iterator
 
 import MySQLdb
 from MySQLdb.cursors import DictCursor, SSDictCursor
@@ -12,7 +15,13 @@ _logger = logging.getLogger(__name__)
 
 
 class MySQL(AbstractBackend):
-    def __init__(self, host=None, user=None, password=None, **kwargs):
+    def __init__(
+        self,
+        host: str | None = None,
+        user: str | None = None,
+        password: str | None = None,
+        **kwargs: Any,
+    ) -> None:
         """
         Initializes an instance of the MySQL backend with the connection parameters.
 
@@ -32,10 +41,15 @@ class MySQL(AbstractBackend):
         # we will remove cursor class from as this will be set in the underlying methods
         self._connection_params.pop("cursorclass", None)
 
-    def _connect(self):
+    def _connect(self) -> Any:
         return MySQLdb.connect(**self._connection_params)
 
-    def execute(self, query, params=None, stream=False):
+    def execute(
+        self,
+        query: str,
+        params: tuple[Any, ...] | None = None,
+        stream: bool = False,
+    ) -> tuple[int, int | None, list[dict[str, Any]]] | Iterator[dict[str, Any]]:
         """
         Executes the query and returns the result.
 
@@ -62,7 +76,11 @@ class MySQL(AbstractBackend):
             self._connection_params["cursorclass"] = DictCursor
             return self._no_stream(query, params)
 
-    def _stream(self, query, params):
+    def _stream(
+        self,
+        query: str,
+        params: tuple[Any, ...] | None,
+    ) -> Iterator[dict[str, Any]]:
         # setup logging
         log_id = _get_uuid()
         adapter = LogIdAdapter(_logger, dict(log_id=log_id))
@@ -91,7 +109,11 @@ class MySQL(AbstractBackend):
             adapter.info(f"Executed in {(execution_end - execution_start).seconds} second(s)")
             adapter.info(f"Ended query execution at {execution_end}")
 
-    def _no_stream(self, query, params):
+    def _no_stream(
+        self,
+        query: str,
+        params: tuple[Any, ...] | None,
+    ) -> tuple[int, int | None, list[dict[str, Any]]]:
         # setup logging
         log_id = _get_uuid()
         adapter = LogIdAdapter(_logger, dict(log_id=log_id))
