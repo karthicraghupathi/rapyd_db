@@ -112,6 +112,16 @@ class TestMySQLNoStream:
         assert params_msgs
         assert all(m.endswith("Params: ('a', 'b')") for m in params_msgs)
 
+    def test_logs_single_element_params_as_tuple(self, mock_mysqldb, caplog):
+        _set_cursor(mock_mysqldb)
+        db = MySQL(host="h", user="u", password="p")
+        with caplog.at_level("INFO"):
+            db.execute("INSERT INTO t VALUES (%s)", ("x",))
+        # 1-tuple must render as a 1-tuple, not unpacked to its element
+        params_msgs = [r.getMessage() for r in caplog.records if "Params:" in r.getMessage()]
+        assert params_msgs
+        assert all(m.endswith("Params: ('x',)") for m in params_msgs)
+
     def test_sets_dictcursor_class(self, mock_mysqldb):
         _set_cursor(mock_mysqldb)
         sentinel = object()
@@ -180,6 +190,16 @@ class TestMySQLStream:
         params_msgs = [r.getMessage() for r in caplog.records if "Params:" in r.getMessage()]
         assert params_msgs
         assert all(m.endswith("Params: ('a', 'b')") for m in params_msgs)
+
+    def test_logs_single_element_params_as_tuple(self, mock_mysqldb, caplog):
+        _set_cursor(mock_mysqldb, stream_rows=[])
+        db = MySQL(host="h", user="u", password="p")
+        with caplog.at_level("INFO"):
+            list(db.execute("SELECT * FROM t WHERE x=%s", ("x",), stream=True))
+        # 1-tuple must render as a 1-tuple, not unpacked to its element
+        params_msgs = [r.getMessage() for r in caplog.records if "Params:" in r.getMessage()]
+        assert params_msgs
+        assert all(m.endswith("Params: ('x',)") for m in params_msgs)
 
     def test_logs_streaming_message(self, mock_mysqldb, caplog):
         _set_cursor(mock_mysqldb, stream_rows=[])
