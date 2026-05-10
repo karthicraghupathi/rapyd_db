@@ -103,7 +103,7 @@ class MySQL(AbstractBackend):
 
             adapter.info("Query: %s", query)
             if params is not None:
-                adapter.info("Params: %s", (params,))
+                adapter.info("Params: %s", params)
 
             # returns the generator object
             yield from cursor
@@ -136,7 +136,7 @@ class MySQL(AbstractBackend):
             execution_end = datetime.now()
             adapter.info("Query: %s", query)
             if params is not None:
-                adapter.info("Params: %s", (params,))
+                adapter.info("Params: %s", params)
             adapter.info(
                 f"{rows_affected} row(s) affected in {(execution_end - execution_start).seconds} second(s)"
             )

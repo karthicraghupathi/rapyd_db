@@ -106,8 +106,11 @@ class TestMySQLNoStream:
         _set_cursor(mock_mysqldb)
         db = MySQL(host="h", user="u", password="p")
         with caplog.at_level("INFO"):
-            db.execute("INSERT INTO t VALUES (%s)", ("a",))
-        assert any("Params:" in r.getMessage() for r in caplog.records)
+            db.execute("INSERT INTO t VALUES (%s, %s)", ("a", "b"))
+        # multi-element params must render as the tuple, not double-wrapped
+        params_msgs = [r.getMessage() for r in caplog.records if "Params:" in r.getMessage()]
+        assert params_msgs
+        assert all(m.endswith("Params: ('a', 'b')") for m in params_msgs)
 
     def test_sets_dictcursor_class(self, mock_mysqldb):
         _set_cursor(mock_mysqldb)
@@ -172,8 +175,11 @@ class TestMySQLStream:
         _set_cursor(mock_mysqldb, stream_rows=[])
         db = MySQL(host="h", user="u", password="p")
         with caplog.at_level("INFO"):
-            list(db.execute("SELECT * FROM t WHERE x=%s", ("a",), stream=True))
-        assert any("Params:" in r.getMessage() for r in caplog.records)
+            list(db.execute("SELECT * FROM t WHERE x=%s AND y=%s", ("a", "b"), stream=True))
+        # multi-element params must render as the tuple, not double-wrapped
+        params_msgs = [r.getMessage() for r in caplog.records if "Params:" in r.getMessage()]
+        assert params_msgs
+        assert all(m.endswith("Params: ('a', 'b')") for m in params_msgs)
 
     def test_logs_streaming_message(self, mock_mysqldb, caplog):
         _set_cursor(mock_mysqldb, stream_rows=[])
