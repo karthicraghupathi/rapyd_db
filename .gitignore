@@ -202,7 +202,6 @@ docs/_build/
 target/
 
 # pyenv
-.python-version
 
 # pipenv
 #   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
@@ -329,3 +328,15 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.gitignore.io/api/vim,linux,macos,python,pycharm,windows,sublimetext,visualstudiocode,jupyternotebook
+
+.venv/
+.pytest_cache/
+.coverage
+htmlcov/
+.ruff_cache/
+.mypy_cache/
+.idea/
+.vscode/
+*.egg-info/
+build/
+dist/

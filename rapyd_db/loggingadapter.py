@@ -1,4 +1,8 @@
+from __future__ import annotations
+
 import logging
+from collections.abc import MutableMapping
+from typing import Any
 
 
 class LogIdAdapter(logging.LoggerAdapter):
@@ -8,9 +12,12 @@ class LogIdAdapter(logging.LoggerAdapter):
     This is used to tie log messages performing a unit of work for easy audits.
     """
 
-    def process(self, msg, kwargs):
-        log_id = self.extra.get("log_id")
+    def process(
+        self,
+        msg: str,
+        kwargs: MutableMapping[str, Any],
+    ) -> tuple[str, MutableMapping[str, Any]]:
+        log_id = self.extra.get("log_id") if self.extra else None
         if log_id:
-            return "{} - {}".format(log_id, msg), kwargs
-        else:
-            return msg, kwargs
+            return f"{log_id} - {msg}", kwargs
+        return msg, kwargs
