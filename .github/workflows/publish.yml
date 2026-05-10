@@ -17,7 +17,7 @@ jobs:
           python-version: "3.12"
       - run: uv sync --extra dev
       - run: uv run python -m build
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v7
         with:
           name: dist
           path: dist/
