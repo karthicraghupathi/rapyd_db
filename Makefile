@@ -25,7 +25,7 @@ type:
 	uv run mypy rapyd_db
 
 test-unit:
-	uv run pytest tests/unit
+	uv run pytest tests/unit --cov=rapyd_db --cov-branch
 
 test-integration:
 	RUN_INTEGRATION_TESTS=1 uv run pytest tests/integration
@@ -33,7 +33,7 @@ test-integration:
 test: test-unit
 
 cov:
-	uv run pytest tests/unit --cov-report=term-missing --cov-report=html
+	uv run pytest tests/unit --cov=rapyd_db --cov-branch --cov-report=term-missing --cov-report=html
 
 build:
 	uv run python -m build
