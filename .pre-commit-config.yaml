@@ -22,3 +22,14 @@ repos:
       - id: mypy
         files: ^rapyd_db/
         additional_dependencies: []
+
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    rev: 0.11.15
+    hooks:
+      - id: uv-lock
+      - id: uv-export
+        args:
+          - --format=requirements-txt
+          - --extra=dev
+          - --no-hashes
+          - --output-file=requirements-dev.txt
