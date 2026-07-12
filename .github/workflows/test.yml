@@ -19,7 +19,7 @@ jobs:
         python: ["3.9", "3.10", "3.11", "3.12", "3.13"]
     steps:
       - uses: actions/checkout@v6
-      - uses: astral-sh/setup-uv@v8.1.0
+      - uses: astral-sh/setup-uv@v8.3.2
       - uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python }}
@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: astral-sh/setup-uv@v8.1.0
+      - uses: astral-sh/setup-uv@v8.3.2
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
@@ -89,7 +89,7 @@ jobs:
       MONGO_TEST_COLLECTION: salaries
     steps:
       - uses: actions/checkout@v6
-      - uses: astral-sh/setup-uv@v8.1.0
+      - uses: astral-sh/setup-uv@v8.3.2
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
@@ -104,7 +104,7 @@ jobs:
     needs: [unit, lint]
     steps:
       - uses: actions/checkout@v6
-      - uses: astral-sh/setup-uv@v8.1.0
+      - uses: astral-sh/setup-uv@v8.3.2
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
